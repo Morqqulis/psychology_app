@@ -1,7 +1,7 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet, TouchableOpacityProps, ActivityIndicator } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useMainContext } from '@/providers/MainProvider';
 
 interface ButtonProps extends TouchableOpacityProps {
   title: string;
@@ -23,8 +23,7 @@ export const Button: React.FC<ButtonProps> = ({
   style,
   ...props
 }) => {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
+  const {isDark}=useMainContext()
 
   const getButtonHeight = () => {
     switch (size) {
