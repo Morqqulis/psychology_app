@@ -5,7 +5,7 @@ import { ApiResponse } from '@/shared/lib/types/api'
 
 export const authApi = {
 	login: async (credentials: LoginRequest): Promise<AuthResponse> => {
-		const { data } = await api.post<ApiResponse<AuthResponse>>('/auth/login', credentials)
+		const { data } = await api.post<ApiResponse<AuthResponse>>('/customers/login', credentials)
 		return data.data
 	},
 
@@ -15,12 +15,12 @@ export const authApi = {
 	},
 
 	getProfile: async (): Promise<User> => {
-		const { data } = await api.get<ApiResponse<User>>('/auth/profile')
+		const { data } = await api.get<ApiResponse<User>>('/customers/me')
 		return data.data
 	},
 
 	logout: async (): Promise<void> => {
-		await api.post('/auth/logout')
+		await api.post('/customers/logout')
 	},
 }
 
