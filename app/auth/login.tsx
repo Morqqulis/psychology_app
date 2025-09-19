@@ -38,8 +38,9 @@ export default function LoginScreen() {
 				Alert.alert('Uğur', 'Sistemə uğurla daxil oldunuz!')
 				router.replace('/(tabs)')
 			},
-			onError: () => {
-				Alert.alert('Xəta', 'Yanlış email və ya şifrə')
+			onError: (error: any) => {
+				const message = error?.message || 'Email və ya parol yanlışdır'
+				Alert.alert('Xəta', message)
 			},
 		})
 	}

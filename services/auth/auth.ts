@@ -1,22 +1,21 @@
 import { api } from '@/shared/lib/axios'
 import type { AuthResponse, LoginRequest, RegisterRequest, User } from '@/services/auth/types'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { ApiResponse } from '@/shared/lib/types/api'
 
 export const authApi = {
 	login: async (credentials: LoginRequest): Promise<AuthResponse> => {
-		const { data } = await api.post<ApiResponse<AuthResponse>>('/customers/login', credentials)
-		return data.data
+		const { data } = await api.post<AuthResponse>('/customers/login', credentials)
+		return data
 	},
 
 	register: async (userData: RegisterRequest): Promise<AuthResponse> => {
-		const { data } = await api.post<ApiResponse<AuthResponse>>('/customers', userData)
-		return data.data
+		const { data } = await api.post<AuthResponse>('/customers', userData)
+		return data
 	},
 
 	getProfile: async (): Promise<User> => {
-		const { data } = await api.get<ApiResponse<User>>('/customers/me')
-		return data.data
+		const { data } = await api.get<User>('/customers/me')
+		return data
 	},
 
 	logout: async (): Promise<void> => {
@@ -24,14 +23,30 @@ export const authApi = {
 	},
 }
 
+const getErrorMessage = (error: any): string => {
+	if (error?.response?.data?.message) {
+		return error.response.data.message
+	}
+	if (error?.response?.status === 400) {
+		return 'Yanlış məlumatlar daxil edilib'
+	}
+	if (error?.response?.status === 401) {
+		return 'Email və ya parol yanlışdır'
+	}
+	if (error?.response?.status === 409) {
+		return 'Bu email artıq istifadə olunur'
+	}
+	if (error?.response?.status >= 500) {
+		return 'Server xətası baş verdi'
+	}
+	return 'Xəta baş verdi'
+}
+
 export const useLogin = () => {
 	return useMutation({
 		mutationFn: authApi.login,
-		onSuccess: data => {
-			console.log('Login successful:', data.user.email)
-		},
 		onError: error => {
-			console.error('Login failed:', error)
+			throw new Error(getErrorMessage(error))
 		},
 	})
 }
@@ -39,11 +54,8 @@ export const useLogin = () => {
 export const useRegister = () => {
 	return useMutation({
 		mutationFn: authApi.register,
-		onSuccess: data => {
-			console.log('Registration successful:', data.user.email)
-		},
 		onError: error => {
-			console.error('Registration failed:', error)
+			throw new Error(getErrorMessage(error))
 		},
 	})
 }
@@ -59,8 +71,5 @@ export const useProfile = () => {
 export const useLogout = () => {
 	return useMutation({
 		mutationFn: authApi.logout,
-		onSuccess: () => {
-			console.log('Logout successful')
-		},
 	})
 }
