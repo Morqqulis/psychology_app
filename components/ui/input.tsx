@@ -1,6 +1,12 @@
-import React, { forwardRef, useState } from 'react';
-import { TextInput, View, Text, StyleSheet, TextInputProps } from 'react-native';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import React, { forwardRef, useState } from "react";
+import {
+  TextInput,
+  View,
+  Text,
+  StyleSheet,
+  TextInputProps,
+} from "react-native";
+import { useMainContext } from "@/providers/MainProvider";
 
 interface InputProps extends TextInputProps {
   label?: string;
@@ -10,47 +16,53 @@ interface InputProps extends TextInputProps {
 }
 
 export const Input = forwardRef<TextInput, InputProps>(
-  ({ label, error, leftIcon, rightIcon, style, secureTextEntry, ...props }, ref) => {
-    const colorScheme = useColorScheme();
-    const isDark = colorScheme === 'dark';
+  (
+    { label, error, leftIcon, rightIcon, style, secureTextEntry, ...props },
+    ref
+  ) => {
+    const { isDark } = useMainContext();
     const [isFocused, setIsFocused] = useState(false);
 
     return (
       <View style={styles.container}>
         {label && (
-          <Text style={[styles.label, { color: isDark ? '#fff' : '#333' }]}>
+          <Text style={[styles.label, { color: isDark ? "#fff" : "#333" }]}>
             {label}
           </Text>
         )}
-        <View style={[
-          styles.inputContainer,
-          {
-            backgroundColor: isDark ? '#2a2a2a' : '#fff',
-            borderColor: error 
-              ? '#ff4757' 
-              : isFocused 
-                ? '#667eea'
-                : isDark ? '#404040' : '#e9ecef'
-          },
-          isFocused && styles.inputContainerFocused
-        ]}>
+        <View
+          style={[
+            styles.inputContainer,
+            {
+              backgroundColor: isDark ? "#2a2a2a" : "#fff",
+              borderColor: error
+                ? "#ff4757"
+                : isFocused
+                ? "#667eea"
+                : isDark
+                ? "#404040"
+                : "#e9ecef",
+            },
+            isFocused && styles.inputContainerFocused,
+          ]}
+        >
           {leftIcon && <View style={styles.iconLeft}>{leftIcon}</View>}
           <TextInput
             ref={ref}
             style={[
               styles.input,
-              { 
-                color: isDark ? '#fff' : '#333',
-                backgroundColor: 'transparent'
+              {
+                color: isDark ? "#fff" : "#333",
+                backgroundColor: "transparent",
               },
               secureTextEntry && styles.passwordInput,
-              style
+              style,
             ]}
-            placeholderTextColor={isDark ? '#888' : '#666'}
+            placeholderTextColor={isDark ? "#888" : "#666"}
             secureTextEntry={secureTextEntry}
-            autoComplete={secureTextEntry ? 'current-password' : 'off'}
-            textContentType={secureTextEntry ? 'password' : 'none'}
-            passwordRules={secureTextEntry ? 'minlength: 6;' : undefined}
+            autoComplete={secureTextEntry ? "current-password" : "off"}
+            textContentType={secureTextEntry ? "password" : "none"}
+            passwordRules={secureTextEntry ? "minlength: 6;" : undefined}
             onFocus={(e) => {
               setIsFocused(true);
               props.onFocus?.(e);
@@ -75,12 +87,12 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
     marginBottom: 8,
   },
   inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     borderWidth: 1,
     borderRadius: 12,
     paddingHorizontal: 16,
@@ -88,7 +100,7 @@ const styles = StyleSheet.create({
   },
   inputContainerFocused: {
     borderWidth: 2,
-    shadowColor: '#667eea',
+    shadowColor: "#667eea",
     shadowOffset: {
       width: 0,
       height: 2,
@@ -103,8 +115,8 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
   },
   passwordInput: {
-    backgroundColor: 'transparent',
-    color: 'inherit',
+    backgroundColor: "transparent",
+    color: "inherit",
   },
   iconLeft: {
     marginRight: 12,
@@ -113,7 +125,7 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
   errorText: {
-    color: '#ff4757',
+    color: "#ff4757",
     fontSize: 14,
     marginTop: 4,
   },
