@@ -31,7 +31,7 @@ export default function HomeScreen() {
           <ThemedText style={[styles.title, { color: "#fff" }]}>
             Psixologiya Mərkəzi
           </ThemedText>
-          <ThemedText style={[styles.subtitle, { color: "#fff" }]}>
+          <ThemedText className={`!text-green-500`} style={[styles.subtitle, { color: "#fff" }]}>
             Zehni sağlamlığınız bizim prioritetimizdir
           </ThemedText>
         </Animatable.View>
