@@ -1,4 +1,4 @@
-POST https://psychology-eosin.vercel.app/api/customers
+POST https://psychology-eosin.vercel.app/api/doctors
 Content-Type: application/json
 
 {

@@ -10,7 +10,7 @@ export const authApi = {
 	},
 
 	register: async (userData: RegisterRequest): Promise<AuthResponse> => {
-		const { data } = await api.post<ApiResponse<AuthResponse>>('/auth/register', userData)
+		const { data } = await api.post<ApiResponse<AuthResponse>>('/customers', userData)
 		return data.data
 	},
 
