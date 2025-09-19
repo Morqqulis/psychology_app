@@ -44,9 +44,3 @@ export const MainProvider = ({ children }: { children: React.ReactNode }) => {
     </MainContext.Provider>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});

@@ -1,12 +1,10 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native'
-import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
-import { Stack } from 'expo-router'
-import { StatusBar } from 'expo-status-bar'
-import 'react-native-reanimated'
-import './global.css'
+import { MainProvider } from '@/providers/MainProvider'
 import { persister } from '@/shared/lib/persister'
 import { queryClient } from '@/shared/lib/query-client'
-import { MainProvider } from '@/providers/MainProvider'
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
+import { Stack } from 'expo-router'
+import 'react-native-reanimated'
+import './global.css'
 
 export const unstable_settings = {
 	anchor: '(tabs)',
