@@ -33,17 +33,18 @@ export default function LoginScreen() {
 
   const loginMutation = useLogin();
 
-  const onSubmit = (data: LoginFormData) => {
-    loginMutation.mutate(data, {
-      onSuccess: () => {
-        Alert.alert("Uğur", "Sistemə uğurla daxil oldunuz!");
-        router.replace("/(tabs)");
-      },
-      onError: () => {
-        Alert.alert("Xəta", "Yanlış email və ya şifrə");
-      },
-    });
-  };
+	const onSubmit = (data: LoginFormData) => {
+		loginMutation.mutate(data, {
+			onSuccess: () => {
+				Alert.alert('Uğur', 'Sistemə uğurla daxil oldunuz!')
+				router.replace('/(tabs)')
+			},
+			onError: (error: any) => {
+				const message = error?.message || 'Email və ya parol yanlışdır'
+				Alert.alert('Xəta', message)
+			},
+		})
+	}
 
   return (
     <KeyboardAvoidingView

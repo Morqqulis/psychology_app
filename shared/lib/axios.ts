@@ -1,37 +1,29 @@
-import axios, { AxiosError, AxiosResponse } from 'axios'
+import axios from 'axios'
 
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000/api'
+const BASE_URL = 'https://psychology-eosin.vercel.app/api'
 
 export const api = axios.create({
-	baseURL: API_BASE_URL,
-	timeout: 10000,
+	baseURL: BASE_URL,
 	headers: {
-		'Content-Type': 'Authrization',
+		'Content-Type': 'application/json',
 	},
 })
 
-api.interceptors.request.use(
-	config => {
-		return config
-	},
-	error => {
-		return Promise.reject(error)
-	}
-)
+api.interceptors.request.use(config => {
+	return config
+})
 
 api.interceptors.response.use(
-	(response: AxiosResponse) => {
+	response => {
 		return response
 	},
-	(error: AxiosError) => {
+	error => {
 		if (error.response?.status === 401) {
-			console.warn('Unauthorized access - consider redirecting to login')
+			console.error('Unauthorized access')
 		}
-		
-		if (error.response?.status && error.response.status >= 500) {
-			console.error('Server error:', error.response?.data)
+		if (error.response?.status >= 500) {
+			console.error('Server error')
 		}
-		
 		return Promise.reject(error)
 	}
 )

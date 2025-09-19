@@ -36,25 +36,24 @@ export default function RegisterScreen() {
 
   const registerMutation = useRegister();
 
-  const onSubmit = (data: RegisterFormData) => {
-    registerMutation.mutate(
-      {
-        name: data.name,
-        email: data.email,
-        password: data.password,
-      },
-      {
-        onSuccess: () => {
-          Alert.alert("Uğur", "Hesab uğurla yaradıldı!", [
-            { text: "OK", onPress: () => router.replace("/auth/login") },
-          ]);
-        },
-        onError: () => {
-          Alert.alert("Xəta", "Hesab yaradıla bilmədi");
-        },
-      }
-    );
-  };
+	const onSubmit = (data: RegisterFormData) => {
+		registerMutation.mutate(
+			{
+				name: data.name,
+				email: data.email,
+				password: data.password,
+			},
+			{
+				onSuccess: () => {
+					Alert.alert('Uğur', 'Hesab uğurla yaradıldı!', [{ text: 'OK', onPress: () => router.replace('/auth/login') }])
+				},
+				onError: (error: any) => {
+					const message = error?.message || 'Hesab yaradıla bilmədi'
+					Alert.alert('Xəta', message)
+				},
+			}
+		)
+	}
 
   return (
     <KeyboardAvoidingView

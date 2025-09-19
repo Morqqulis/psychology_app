@@ -1,8 +1,30 @@
-POST https://psychology-eosin.vercel.app/api/doctors
+###
+POST https://psychology-eosin.vercel.app/api/customers/login
 Content-Type: application/json
 
 {
-  "name": "Test User",
+
   "email": "test@example.com",
-  "password": "123456"
+  "password": "123456Aa"
 }
+###
+POST https://psychology-eosin.vercel.app/api/customers
+Content-Type: application/json
+
+{
+  "name": "Test User2",
+  "email": "test@example.com",
+  "password": "123456Aa"
+}
+
+
+###
+POST https://psychology-eosin.vercel.app/api/customers/logout
+Content-Type: application/json
+
+{
+  "name": "Test User2",
+  "email": "test@example.com",
+  "password": "123456Aa"
+}
+

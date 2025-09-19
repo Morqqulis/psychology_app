@@ -1,12 +1,12 @@
 export interface User {
-	id: string
+	id: number
 	email: string
 	name: string
 }
 
 export interface AuthResponse {
-	user: User
-	token: string
+	doc: User
+	message: string
 }
 
 export interface LoginRequest {
