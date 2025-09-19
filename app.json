@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "psychology_app",
-    "slug": "psychology_app",
+    "slug": "psychology",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -43,6 +43,13 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "b3c28066-96e5-474a-86ae-3007da84624c"
+      }
+    },
+    "owner": "yarn.run.dev"
   }
 }

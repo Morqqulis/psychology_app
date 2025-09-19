@@ -1,98 +1,127 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons'
+import { LinearGradient } from 'expo-linear-gradient'
+import { StyleSheet, View } from 'react-native'
+import * as Animatable from 'react-native-animatable'
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+import { Button } from '@/components/ui/button'
+import { ThemedText } from '@/components/ui/themed-text'
+import { useColorScheme } from '@/hooks/use-color-scheme'
+import { router } from 'expo-router'
 
 export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+	const colorScheme = useColorScheme()
+	const isDark = colorScheme === 'dark'
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
-  );
+	return (
+		<LinearGradient
+			colors={isDark ? ['#1a1a2e', '#16213e', '#0f3460'] : ['#667eea', '#764ba2', '#f093fb']}
+			style={styles.container}>
+			<View style={styles.content}>
+				<Animatable.View animation='fadeInDown' duration={1000} style={styles.headerContainer}>
+					<View style={styles.iconContainer}>
+						<Ionicons name='apps' size={80} color='#fff' />
+					</View>
+					<ThemedText style={[styles.title, { color: '#fff' }]}>Psixologiya Mərkəzi</ThemedText>
+					<ThemedText style={[styles.subtitle, { color: '#fff' }]}>
+						Zehni sağlamlığınız bizim prioritetimizdir
+					</ThemedText>
+				</Animatable.View>
+
+				<Animatable.View animation='fadeInUp' duration={1000} delay={300} style={styles.authContainer}>
+					<Button
+						title='Daxil ol'
+						onPress={() => router.push('/auth/login')}
+						// style={styles.authButton}
+						variant='primary'
+					/>
+					<Button
+						title='Qeydiyyat'
+						variant='outline'
+						onPress={() => router.push('/auth/register')}
+						style={[styles.authButton, styles.outlineButton]}
+					/>
+				</Animatable.View>
+
+				<Animatable.View animation='fadeIn' duration={1000} delay={600} style={styles.featuresContainer}>
+					<View style={styles.featureItem}>
+						<Ionicons name='shield-checkmark' size={24} color='#fff' />
+						<ThemedText style={[styles.featureText, { color: '#fff' }]}>Təhlükəsiz və məxfi</ThemedText>
+					</View>
+					<View style={styles.featureItem}>
+						<Ionicons name='people' size={24} color='#fff' />
+						<ThemedText style={[styles.featureText, { color: '#fff' }]}>Peşəkar psixoloqlar</ThemedText>
+					</View>
+					<View style={styles.featureItem}>
+						<Ionicons name='time' size={24} color='#fff' />
+						<ThemedText style={[styles.featureText, { color: '#fff' }]}>24/7 dəstək</ThemedText>
+					</View>
+				</Animatable.View>
+			</View>
+		</LinearGradient>
+	)
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
-});
+	container: {
+		flex: 1,
+	},
+	content: {
+		flex: 1,
+		justifyContent: 'center',
+		alignItems: 'center',
+		paddingHorizontal: 20,
+	},
+	headerContainer: {
+		alignItems: 'center',
+		marginBottom: 50,
+	},
+	iconContainer: {
+		width: 120,
+		height: 120,
+		borderRadius: 60,
+		backgroundColor: 'rgba(255, 255, 255, 0.2)',
+		justifyContent: 'center',
+		alignItems: 'center',
+		marginBottom: 20,
+	},
+	title: {
+		fontSize: 26,
+		fontWeight: 'bold',
+		textAlign: 'center',
+		marginBottom: 10,
+	},
+	subtitle: {
+		fontSize: 16,
+		textAlign: 'center',
+		opacity: 0.9,
+		paddingHorizontal: 20,
+	},
+	authContainer: {
+		width: '100%',
+		gap: 16,
+		marginBottom: 40,
+	},
+	authButton: {
+		width: '100%',
+		paddingVertical: 16,
+	},
+	outlineButton: {
+		backgroundColor: 'rgba(255, 255, 255, 0.1)',
+		borderColor: '#fff',
+		borderWidth: 1,
+	},
+	featuresContainer: {
+		width: '100%',
+		gap: 16,
+	},
+	featureItem: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		gap: 12,
+		paddingHorizontal: 20,
+	},
+	featureText: {
+		fontSize: 16,
+		opacity: 0.9,
+	},
+})

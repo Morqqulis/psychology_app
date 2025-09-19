@@ -1,0 +1,8 @@
+POST https://psychology-eosin.vercel.app/api/customers
+Content-Type: application/json
+
+{
+  "name": "Test User",
+  "email": "test@example.com",
+  "password": "123456"
+}
