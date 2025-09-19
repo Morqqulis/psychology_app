@@ -1,6 +1,13 @@
 import { createContext, useContext, useMemo } from "react";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { StyleSheet, useColorScheme } from "react-native";
+import {
+  DarkTheme,
+  DefaultTheme,
+  ThemeProvider,
+} from "@react-navigation/native";
+import { StatusBar } from "expo-status-bar";
+
 export { useColorScheme } from "react-native";
 // import Toast from "react-native-toast-message"
 // ;
@@ -29,18 +36,11 @@ export const MainProvider = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <MainContext.Provider value={contextValue}>
-      <SafeAreaProvider>
-        <SafeAreaView
-          style={[
-            styles.container,
-            // { backgroundColor: contextValue.colors.background },
-          ]}
-          edges={["top", "bottom"]}
-        >
-          {children}
-          {/* <Toast /> */}
-        </SafeAreaView>
-      </SafeAreaProvider>
+      <ThemeProvider value={isDark ? DarkTheme : DefaultTheme}>
+        {children}
+        {/* <Toast /> */}
+      </ThemeProvider>
+      <StatusBar style="auto" />
     </MainContext.Provider>
   );
 };

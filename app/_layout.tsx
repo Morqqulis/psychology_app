@@ -1,29 +1,21 @@
-import {
-  DarkTheme,
-  DefaultTheme,
-  ThemeProvider,
-} from "@react-navigation/native";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 import { Stack } from "expo-router";
-import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
-
 import { persister } from "@/shared/lib/persister";
 import { queryClient } from "@/shared/lib/query-client";
-import { useMainContext } from "@/providers/MainProvider";
+import { MainProvider } from "@/providers/MainProvider";
 
 export const unstable_settings = {
   anchor: "(tabs)",
 };
 
 export default function RootLayout() {
-  const { isDark } = useMainContext();
   return (
     <PersistQueryClientProvider
       client={queryClient}
       persistOptions={{ persister }}
     >
-      <ThemeProvider value={isDark ? DarkTheme : DefaultTheme}>
+      <MainProvider>
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen
@@ -41,8 +33,7 @@ export default function RootLayout() {
             }}
           />
         </Stack>
-        <StatusBar style="auto" />
-      </ThemeProvider>
+      </MainProvider>
     </PersistQueryClientProvider>
   );
 }
