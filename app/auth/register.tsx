@@ -38,7 +38,7 @@ export default function RegisterScreen() {
   });
   // console.log(watch())
 
-  const registerMutation = useRegister();
+	const registerMutation = useRegister()
 
   const onSubmit = (data: RegisterFormData) => {
     registerMutation.mutate(
