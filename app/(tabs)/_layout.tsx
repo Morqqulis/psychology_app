@@ -1,25 +1,64 @@
-import { Tabs } from 'expo-router'
-import React from 'react'
+import { Tabs } from "expo-router";
+import React from "react";
 
-import { HapticTab } from '@/components/ui/haptic-tab'
-import { IconSymbol } from '@/components/ui/icon-symbol'
-import { Colors } from '@/constants/theme'
-import { useColorScheme } from 'react-native'
+import { HapticTab } from "@/components/ui/haptic-tab";
+import { IconSymbol } from "@/components/ui/icon-symbol";
+import { Colors, gradients } from "@/constants/theme";
+import { useMainContext } from "@/providers/MainProvider";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { LinearGradient } from "expo-linear-gradient";
+import { View } from "react-native";
+
 export default function TabLayout() {
-	return (
-		<Tabs
-			screenOptions={{
-				tabBarActiveTintColor: Colors[useColorScheme() ?? 'light'].tint,
-				headerShown: false,
-				tabBarButton: HapticTab,
-			}}>
-			<Tabs.Screen
-				name='index'
-				options={{
-					title: 'Home',
-					tabBarIcon: ({ color }) => <IconSymbol size={28} name='house.fill' color={color} />,
-				}}
-			/>
-		</Tabs>
-	)
+  const { them } = useMainContext();
+  return (
+    <SafeAreaView style={{ flex: 1 }} edges={["top", "bottom"]}>
+      <Tabs
+        screenOptions={{
+          tabBarShowLabel: true,
+          tabBarActiveTintColor: Colors[them].tint,
+          tabBarInactiveTintColor: Colors[them].tabIconDefault,
+          tabBarBackground: () => (
+            <View
+              style={{
+                flex: 1,
+                alignItems: "center",
+                justifyContent: "center",
+                borderColor: "none",
+                backgroundColor: "#2c3e50",
+              }}
+            >
+              <View style={{}} />
+            </View>
+          ),
+          tabBarLabelStyle: {
+            fontSize: 11,
+          },
+
+          tabBarLabelPosition: "below-icon",
+          headerShown: false,
+          tabBarButton: HapticTab,
+        }}
+      >
+        <Tabs.Screen
+          name="home"
+          options={{
+            title: "Əsas səhifə",
+            tabBarIcon: ({ color }) => (
+              <IconSymbol size={28} name="house.fill" color={color} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="profile"
+          options={{
+            title: "Profil",
+            tabBarIcon: ({ color }) => (
+              <IconSymbol size={28} name="person" color={color} />
+            ),
+          }}
+        />
+      </Tabs>
+    </SafeAreaView>
+  );
 }

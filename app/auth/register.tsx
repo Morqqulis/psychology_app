@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   View,
   Text,
@@ -9,61 +9,64 @@ import {
   Alert,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import * as Animatable from "react-native-animatable";
 import { Ionicons } from "@expo/vector-icons";
 import { Link, router } from "expo-router";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useRegister } from "@/services/auth/auth";
 import { RegisterFormData, registerSchema } from "@/shared/schemas/auth";
 import { useMainContext } from "@/providers/MainProvider";
+import { Colors, gradients } from "@/constants/theme";
+import { InputControlled } from "@/components/ui/input-controlled";
+import GenderInput from "@/components/GenderInput";
 
 export default function RegisterScreen() {
-  const { isDark } = useMainContext();
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const { them } = useMainContext();
 
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<RegisterFormData>({
+  const { control, handleSubmit } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
+    defaultValues: {
+      name: undefined,
+      surname: undefined,
+      email: undefined,
+      password: undefined,
+      confirmPassword: undefined,
+      gender: undefined,
+    },
   });
+  // console.log(watch())
 
   const registerMutation = useRegister();
 
-	const onSubmit = (data: RegisterFormData) => {
-		registerMutation.mutate(
-			{
-				name: data.name,
-				email: data.email,
-				password: data.password,
-			},
-			{
-				onSuccess: () => {
-					Alert.alert('Uğur', 'Hesab uğurla yaradıldı!', [{ text: 'OK', onPress: () => router.replace('/auth/login') }])
-				},
-				onError: (error: any) => {
-					const message = error?.message || 'Hesab yaradıla bilmədi'
-					Alert.alert('Xəta', message)
-				},
-			}
-		)
-	}
+  const onSubmit = (data: RegisterFormData) => {
+    registerMutation.mutate(
+      {
+        name: data.name,
+        email: data.email,
+        password: data.password,
+      },
+      {
+        onSuccess: () => {
+          Alert.alert("Uğur", "Hesab uğurla yaradıldı!", [
+            { text: "OK", onPress: () => router.replace("/auth/login") },
+          ]);
+        },
+        onError: (error: any) => {
+          const message = error?.message || "Hesab yaradıla bilmədi";
+          Alert.alert("Xəta", message);
+        },
+      }
+    );
+  };
 
   return (
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
-      <LinearGradient
-        colors={isDark ? ["#1a1a2e", "#16213e"] : ["#764ba2", "#667eea"]}
-        style={styles.gradient}
-      >
+      <LinearGradient colors={gradients[them].splash} style={styles.gradient}>
         <ScrollView
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
@@ -77,191 +80,103 @@ export default function RegisterScreen() {
               <Ionicons name="person-add" size={80} color="#fff" />
             </View>
             <Text style={styles.title}>Hesab yarat</Text>
-            <Text style={styles.subtitle}>Bu gün bizə qoşulun</Text>
           </Animatable.View>
 
-          <Animatable.View
-            animation="fadeInUp"
-            delay={300}
-            duration={1000}
-            style={[
-              styles.formContainer,
-              { backgroundColor: isDark ? "#2a2a2a" : "#fff" },
-            ]}
-          >
-            <Controller
-              control={control}
-              name="name"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <Input
-                  label="Ad"
-                  placeholder="Adınızı daxil edin"
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  error={errors.name?.message}
-                  autoCapitalize="words"
-                  leftIcon={
-                    <Ionicons
-                      name="person-outline"
-                      size={20}
-                      color={isDark ? "#888" : "#666"}
-                    />
-                  }
-                />
-              )}
-            />
-
-            <Controller
-              control={control}
-              name="email"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <Input
-                  label="Email"
-                  placeholder="Email ünvanınızı daxil edin"
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  error={errors.email?.message}
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  leftIcon={
-                    <Ionicons
-                      name="mail-outline"
-                      size={20}
-                      color={isDark ? "#888" : "#666"}
-                    />
-                  }
-                />
-              )}
-            />
-
-            <Controller
-              control={control}
-              name="password"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <Input
-                  label="Şifrə"
-                  placeholder="Şifrənizi daxil edin"
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  error={errors.password?.message}
-                  secureTextEntry={!showPassword}
-                  autoComplete="password"
-                  textContentType="newPassword"
-                  leftIcon={
-                    <Ionicons
-                      name="lock-closed-outline"
-                      size={20}
-                      color={isDark ? "#888" : "#666"}
-                    />
-                  }
-                  rightIcon={
-                    <Ionicons
-                      name={showPassword ? "eye-off-outline" : "eye-outline"}
-                      size={20}
-                      color={isDark ? "#888" : "#666"}
-                      onPress={() => setShowPassword(!showPassword)}
-                    />
-                  }
-                />
-              )}
-            />
-
-            <Controller
-              control={control}
-              name="confirmPassword"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <Input
-                  label="Şifrəni təsdiq edin"
-                  placeholder="Şifrənizi təkrar daxil edin"
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  error={errors.confirmPassword?.message}
-                  secureTextEntry={!showConfirmPassword}
-                  autoComplete="password"
-                  textContentType="newPassword"
-                  leftIcon={
-                    <Ionicons
-                      name="lock-closed-outline"
-                      size={20}
-                      color={isDark ? "#888" : "#666"}
-                    />
-                  }
-                  rightIcon={
-                    <Ionicons
-                      name={
-                        showConfirmPassword ? "eye-off-outline" : "eye-outline"
-                      }
-                      size={20}
-                      color={isDark ? "#888" : "#666"}
-                      onPress={() =>
-                        setShowConfirmPassword(!showConfirmPassword)
-                      }
-                    />
-                  }
-                />
-              )}
-            />
-
-            <Text
-              style={[styles.passwordHint, { color: isDark ? "#888" : "#666" }]}
+          <Animatable.View animation="fadeInUp" delay={300} duration={1000}>
+            <LinearGradient
+              colors={gradients[them].glass}
+              style={styles.formContainer}
             >
-              Şifrə ən azı 8 simvol, böyük və kiçik hərflər, rəqəmlər ehtiva
-              etməlidir
-            </Text>
-
-            <Button
-              title="Hesab yarat"
-              onPress={handleSubmit(onSubmit)}
-              loading={registerMutation.isPending}
-              style={styles.registerButton}
-            />
-
-            <View style={styles.divider}>
-              <View
-                style={[
-                  styles.dividerLine,
-                  { backgroundColor: isDark ? "#404040" : "#e9ecef" },
-                ]}
+              <InputControlled
+                control={control}
+                name="name"
+                label="Ad"
+                placeholder="Adınızı daxil edin"
+                leftIcon={"person-outline"}
+                autoCapitalize="words"
               />
-              <Text
-                style={[
-                  styles.dividerText,
-                  { color: isDark ? "#888" : "#666" },
-                ]}
-              >
-                və ya
-              </Text>
-              <View
-                style={[
-                  styles.dividerLine,
-                  { backgroundColor: isDark ? "#404040" : "#e9ecef" },
-                ]}
+
+              <InputControlled
+                control={control}
+                name="surname"
+                label="Soyad"
+                placeholder="Soyadınızı daxil edin"
+                leftIcon={"person-outline"}
+                autoCapitalize="words"
               />
-            </View>
 
-            <Button
-              title="Google ilə qeydiyyat"
-              variant="outline"
-              leftIcon={
-                <Ionicons name="logo-google" size={12} color="#667eea" />
-              }
-              style={styles.socialButton}
-            />
+              <InputControlled
+                control={control}
+                name="email"
+                label="Email"
+                placeholder="Email ünvanınızı daxil edin"
+                leftIcon={"mail-outline"}
+                keyboardType="email-address"
+              />
 
-            <View style={styles.footer}>
-              <Text
-                style={[styles.footerText, { color: isDark ? "#888" : "#666" }]}
-              >
-                Artıq hesabınız var?{" "}
+              <GenderInput
+                control={control}
+                name="gender"
+                label="Cinsiyyət"
+                placeholder="Cinsinizi seçin"
+              />
+              <InputControlled
+                control={control}
+                name="password"
+                label="Şifrə"
+                placeholder="Şifrənizi daxil edin"
+                autoComplete="password"
+                leftIcon={"lock-closed-outline"}
+              />
+              <InputControlled
+                control={control}
+                name="confirmPassword"
+                label="Şifrəni təsdiq edin"
+                placeholder="Şifrənizi təkrar daxil edin"
+                autoComplete="password"
+                leftIcon={"lock-closed-outline"}
+              />
+
+              <Text style={[styles.passwordHint, { color: Colors[them].text }]}>
+                Şifrə ən azı 8 simvol, böyük və kiçik hərflər, rəqəmlər ehtiva
+                etməlidir
               </Text>
-              <Link href="/auth/login" asChild>
-                <Text style={styles.linkText}>Daxil ol</Text>
-              </Link>
-            </View>
+
+              <Button
+                title="Hesab yarat"
+                onPress={handleSubmit(onSubmit)}
+                loading={registerMutation.isPending}
+                style={styles.registerButton}
+              />
+
+              <View style={styles.divider}>
+                <View style={[styles.dividerLine]} />
+                <Text
+                  style={[styles.dividerText, { color: Colors[them].text }]}
+                >
+                  və ya
+                </Text>
+                <View style={[styles.dividerLine]} />
+              </View>
+
+              <Button
+                title="Google ilə qeydiyyat"
+                variant="outline"
+                leftIcon={
+                  <Ionicons name="logo-google" size={20} color="#667eea" />
+                }
+                style={styles.socialButton}
+              />
+
+              <View style={styles.footer}>
+                <Text style={[styles.footerText, { color: Colors[them].text }]}>
+                  Artıq hesabınız var?
+                </Text>
+                <Link href="/auth/login" asChild>
+                  <Text style={styles.linkText}>Daxil ol</Text>
+                </Link>
+              </View>
+            </LinearGradient>
           </Animatable.View>
         </ScrollView>
       </LinearGradient>
@@ -279,7 +194,8 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     justifyContent: "center",
-    padding: 20,
+    paddingVertical: 50,
+    padding: 10,
   },
   headerContainer: {
     alignItems: "center",
@@ -309,14 +225,6 @@ const styles = StyleSheet.create({
   formContainer: {
     borderRadius: 20,
     padding: 24,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 10,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 20,
-    elevation: 10,
   },
   passwordHint: {
     fontSize: 12,
@@ -334,6 +242,7 @@ const styles = StyleSheet.create({
   dividerLine: {
     flex: 1,
     height: 1,
+    backgroundColor: "#ECEDEE",
   },
   dividerText: {
     marginHorizontal: 16,
@@ -344,11 +253,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flexDirection: "row",
     justifyContent: "center",
+    borderColor: "#fff",
+    borderWidth: 0.5,
   },
   footer: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
+    gap: 8,
   },
   footerText: {
     fontSize: 14,

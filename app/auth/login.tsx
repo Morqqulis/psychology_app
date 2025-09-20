@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   View,
   Text,
@@ -9,52 +9,49 @@ import {
   Alert,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as Animatable from "react-native-animatable";
 import { Ionicons } from "@expo/vector-icons";
 import { Link, router } from "expo-router";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useLogin } from "@/services/auth/auth";
 import { LoginFormData, loginSchema } from "@/shared/schemas/auth";
 import { useMainContext } from "@/providers/MainProvider";
+import { Colors, gradients } from "@/constants/theme";
+import { InputControlled } from "@/components/ui/input-controlled";
 
 export default function LoginScreen() {
-  const { isDark } = useMainContext();
-  const [showPassword, setShowPassword] = useState(false);
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<LoginFormData>({
+  const { them } = useMainContext();
+  const { control, handleSubmit } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: undefined,
+      password: undefined,
+    },
   });
 
   const loginMutation = useLogin();
 
-	const onSubmit = (data: LoginFormData) => {
-		loginMutation.mutate(data, {
-			onSuccess: () => {
-				Alert.alert('Uğur', 'Sistemə uğurla daxil oldunuz!')
-				router.replace('/(tabs)')
-			},
-			onError: (error: any) => {
-				const message = error?.message || 'Email və ya parol yanlışdır'
-				Alert.alert('Xəta', message)
-			},
-		})
-	}
+  const onSubmit = (data: LoginFormData) => {
+    loginMutation.mutate(data, {
+      onSuccess: () => {
+        Alert.alert("Uğur", "Sistemə uğurla daxil oldunuz!");
+        router.replace("/(tabs)");
+      },
+      onError: (error: any) => {
+        const message = error?.message || "Email və ya parol yanlışdır";
+        Alert.alert("Xəta", message);
+      },
+    });
+  };
 
   return (
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
-      <LinearGradient
-        colors={isDark ? ["#1a1a2e", "#16213e"] : ["#667eea", "#764ba2"]}
-        style={styles.gradient}
-      >
+      <LinearGradient colors={gradients[them].splash} style={styles.gradient}>
         <ScrollView
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
@@ -67,125 +64,66 @@ export default function LoginScreen() {
             <View style={styles.logoContainer}>
               <Ionicons name="person-circle-outline" size={80} color="#fff" />
             </View>
-            <Text style={styles.title}>Xoş gəlmisiniz</Text>
-            <Text style={styles.subtitle}>Hesabınıza daxil olun</Text>
+            <Text style={styles.title}>Xoş gəlmişsiniz</Text>
           </Animatable.View>
 
-          <Animatable.View
-            animation="fadeInUp"
-            delay={300}
-            duration={1000}
-            style={[
-              styles.formContainer,
-              { backgroundColor: isDark ? "#2a2a2a" : "#fff" },
-            ]}
-          >
-            <Controller
-              control={control}
-              name="email"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <Input
-                  label="Email"
-                  placeholder="Email ünvanınızı daxil edin"
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  error={errors.email?.message}
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  leftIcon={
-                    <Ionicons
-                      name="mail-outline"
-                      size={20}
-                      color={isDark ? "#888" : "#666"}
-                    />
-                  }
-                />
-              )}
-            />
-
-            <Controller
-              control={control}
-              name="password"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <Input
-                  label="Şifrə"
-                  placeholder="Şifrənizi daxil edin"
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  error={errors.password?.message}
-                  secureTextEntry={!showPassword}
-                  autoComplete="current-password"
-                  textContentType="password"
-                  leftIcon={
-                    <Ionicons
-                      name="lock-closed-outline"
-                      size={20}
-                      color={isDark ? "#888" : "#666"}
-                    />
-                  }
-                  rightIcon={
-                    <Ionicons
-                      name={showPassword ? "eye-off-outline" : "eye-outline"}
-                      size={20}
-                      color={isDark ? "#888" : "#666"}
-                      onPress={() => setShowPassword(!showPassword)}
-                    />
-                  }
-                />
-              )}
-            />
-
-            <Button
-              title="Daxil ol"
-              onPress={handleSubmit(onSubmit)}
-              loading={loginMutation.isPending}
-              style={styles.loginButton}
-            />
-
-            <View style={styles.divider}>
-              <View
-                style={[
-                  styles.dividerLine,
-                  { backgroundColor: isDark ? "#404040" : "#e9ecef" },
-                ]}
+          <Animatable.View animation="fadeInUp" delay={300} duration={1000}>
+            <LinearGradient
+              colors={gradients[them].glass}
+              style={styles.formContainer}
+            >
+              <InputControlled
+                control={control}
+                name="email"
+                label="Email"
+                placeholder="Email ünvanınızı daxil edin"
+                keyboardType="email-address"
+                leftIcon="mail-outline"
               />
-              <Text
-                style={[
-                  styles.dividerText,
-                  { color: isDark ? "#888" : "#666" },
-                ]}
-              >
-                və ya
-              </Text>
-              <View
-                style={[
-                  styles.dividerLine,
-                  { backgroundColor: isDark ? "#404040" : "#e9ecef" },
-                ]}
+              <InputControlled
+                control={control}
+                name="password"
+                label="Şifrə"
+                placeholder="Şifrənizi daxil edin"
+                autoComplete="current-password"
+                leftIcon={"lock-closed-outline"}
               />
-            </View>
 
-            <Button
-              title="Google ilə daxil ol"
-              variant="outline"
-              leftIcon={
-                <Ionicons name="logo-google" size={20} color="#667eea" />
-              }
-              style={styles.socialButton}
-            />
+              <Button
+                title="Daxil ol"
+                onPress={handleSubmit(onSubmit)}
+                loading={loginMutation.isPending}
+                style={styles.loginButton}
+              />
 
-            <View style={styles.footer}>
-              <Text
-                style={[styles.footerText, { color: isDark ? "#888" : "#666" }]}
-              >
-                Hesabınız yoxdur?{" "}
-              </Text>
-              <Link href="/auth/register" asChild>
-                <Text style={styles.linkText}>Qeydiyyatdan keç</Text>
-              </Link>
-            </View>
+              <View style={styles.divider}>
+                <View style={[styles.dividerLine]} />
+                <Text
+                  style={[styles.dividerText, { color: Colors[them].text }]}
+                >
+                  və ya
+                </Text>
+                <View style={[styles.dividerLine]} />
+              </View>
+
+              <Button
+                title="Google ilə daxil ol"
+                variant="outline"
+                leftIcon={
+                  <Ionicons name="logo-google" size={20} color="#667eea" />
+                }
+                style={styles.socialButton}
+              />
+
+              <View style={styles.footer}>
+                <Text style={[styles.footerText, { color: Colors[them].text }]}>
+                  Hesabınız yoxdur?
+                </Text>
+                <Link href="/auth/register" asChild>
+                  <Text style={styles.linkText}>Qeydiyyatdan keç</Text>
+                </Link>
+              </View>
+            </LinearGradient>
           </Animatable.View>
         </ScrollView>
       </LinearGradient>
@@ -204,6 +142,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: "center",
     padding: 20,
+    paddingVertical: 50,
   },
   headerContainer: {
     alignItems: "center",
@@ -225,22 +164,9 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     textAlign: "center",
   },
-  subtitle: {
-    fontSize: 16,
-    color: "rgba(255, 255, 255, 0.8)",
-    textAlign: "center",
-  },
   formContainer: {
     borderRadius: 20,
     padding: 24,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 10,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 20,
-    elevation: 10,
   },
   loginButton: {
     marginTop: 8,
@@ -253,6 +179,7 @@ const styles = StyleSheet.create({
   dividerLine: {
     flex: 1,
     height: 1,
+    backgroundColor: "#ECEDEE",
   },
   dividerText: {
     marginHorizontal: 16,
@@ -260,11 +187,17 @@ const styles = StyleSheet.create({
   },
   socialButton: {
     marginBottom: 24,
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "center",
+    borderColor: "#fff",
+    borderWidth: 0.5,
   },
   footer: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
+    gap: 8,
   },
   footerText: {
     fontSize: 14,

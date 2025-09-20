@@ -19,12 +19,15 @@ Content-Type: application/json
 
 
 ###
-POST https://psychology-eosin.vercel.app/api/customers/logout
+POST https://psychology-eosin.vercel.app/api/chat
 Content-Type: application/json
 
 {
-  "name": "Test User2",
-  "email": "test@example.com",
-  "password": "123456Aa"
+  "id": "Test User2",
+  "chatId": "test@example.com",
+  "message": "123456Aa"
 }
+
+
+
 

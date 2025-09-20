@@ -1,3 +1,4 @@
+import React, { Fragment, useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { StyleSheet, View } from "react-native";
@@ -5,20 +6,20 @@ import * as Animatable from "react-native-animatable";
 
 import { Button } from "@/components/ui/button";
 import { ThemedText } from "@/components/ui/themed-text";
-import { router } from "expo-router";
+import { Redirect, router } from "expo-router";
 import { useMainContext } from "@/providers/MainProvider";
+import { gradients } from "@/constants/theme";
+import { useUserContext } from "@/providers/UserProvider";
 
-export default function HomeScreen() {
-  const { isDark } = useMainContext();
+export default function index() {
+  const { user, loading } = useUserContext();
+  const { them } = useMainContext();
+  
+  if (user?._id)
+    return user?.role === "user" && <Redirect href={"/(tabs)/home"} />;
+
   return (
-    <LinearGradient
-      colors={
-        isDark
-          ? ["#1a1a2e", "#16213e", "#0f3460"]
-          : ["#667eea", "#764ba2", "#f093fb"]
-      }
-      style={styles.container}
-    >
+    <LinearGradient colors={gradients[them].splash} style={styles.container}>
       <View style={styles.content}>
         <Animatable.View
           animation="fadeInDown"
@@ -31,7 +32,7 @@ export default function HomeScreen() {
           <ThemedText style={[styles.title, { color: "#fff" }]}>
             Psixologiya Mərkəzi
           </ThemedText>
-          <ThemedText className={`!text-green-500`} style={[styles.subtitle, { color: "#fff" }]}>
+          <ThemedText style={[styles.subtitle, { color: "#fff" }]}>
             Zehni sağlamlığınız bizim prioritetimizdir
           </ThemedText>
         </Animatable.View>
@@ -45,14 +46,15 @@ export default function HomeScreen() {
           <Button
             title="Daxil ol"
             onPress={() => router.push("/auth/login")}
-            // style={styles.authButton}
             variant="primary"
+            loading={loading}
           />
           <Button
             title="Qeydiyyat"
             variant="outline"
             onPress={() => router.push("/auth/register")}
             style={[styles.authButton, styles.outlineButton]}
+            loading={loading}
           />
         </Animatable.View>
 
@@ -64,21 +66,19 @@ export default function HomeScreen() {
         >
           <View style={styles.featureItem}>
             <Ionicons name="shield-checkmark" size={24} color="#fff" />
-            <ThemedText style={[styles.featureText, { color: "#fff" }]}>
+            <ThemedText style={[styles.featureText]}>
               Təhlükəsiz və məxfi
             </ThemedText>
           </View>
           <View style={styles.featureItem}>
             <Ionicons name="people" size={24} color="#fff" />
-            <ThemedText style={[styles.featureText, { color: "#fff" }]}>
+            <ThemedText style={[styles.featureText]}>
               Peşəkar psixoloqlar
             </ThemedText>
           </View>
           <View style={styles.featureItem}>
             <Ionicons name="time" size={24} color="#fff" />
-            <ThemedText style={[styles.featureText, { color: "#fff" }]}>
-              24/7 dəstək
-            </ThemedText>
+            <ThemedText style={[styles.featureText]}>24/7 dəstək</ThemedText>
           </View>
         </Animatable.View>
       </View>
@@ -90,6 +90,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+
   content: {
     flex: 1,
     justifyContent: "center",
@@ -114,6 +115,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "center",
     marginBottom: 10,
+    lineHeight: 30,
   },
   subtitle: {
     fontSize: 16,
@@ -128,7 +130,8 @@ const styles = StyleSheet.create({
   },
   authButton: {
     width: "100%",
-    paddingVertical: 16,
+    alignItems: "center",
+    justifyContent: "center",
   },
   outlineButton: {
     backgroundColor: "rgba(255, 255, 255, 0.1)",
@@ -148,5 +151,6 @@ const styles = StyleSheet.create({
   featureText: {
     fontSize: 16,
     opacity: 0.9,
+    color: "#fff",
   },
 });

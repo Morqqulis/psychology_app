@@ -7,6 +7,7 @@ import {
   TextInputProps,
 } from "react-native";
 import { useMainContext } from "@/providers/MainProvider";
+import { Colors } from "@/constants/theme";
 
 interface InputProps extends TextInputProps {
   label?: string;
@@ -20,28 +21,22 @@ export const Input = forwardRef<TextInput, InputProps>(
     { label, error, leftIcon, rightIcon, style, secureTextEntry, ...props },
     ref
   ) => {
-    const { isDark } = useMainContext();
+    const { them } = useMainContext();
     const [isFocused, setIsFocused] = useState(false);
-
+    const color = Colors[them].text;
     return (
       <View style={styles.container}>
-        {label && (
-          <Text style={[styles.label, { color: isDark ? "#fff" : "#333" }]}>
-            {label}
-          </Text>
-        )}
+        {label && <Text style={[styles.label, { color }]}>{label}</Text>}
         <View
           style={[
             styles.inputContainer,
             {
-              backgroundColor: isDark ? "#2a2a2a" : "#fff",
+              backgroundColor: Colors[them].inputContainer,
               borderColor: error
                 ? "#ff4757"
                 : isFocused
-                ? "#667eea"
-                : isDark
-                ? "#404040"
-                : "#e9ecef",
+                  ? "#667eea"
+                  : Colors[them].inputBorder,
             },
             isFocused && styles.inputContainerFocused,
           ]}
@@ -51,25 +46,20 @@ export const Input = forwardRef<TextInput, InputProps>(
             ref={ref}
             style={[
               styles.input,
-              {
-                color: isDark ? "#fff" : "#333",
-                backgroundColor: "transparent",
-              },
+              { color, backgroundColor: "transparent" },
               secureTextEntry && styles.passwordInput,
               style,
             ]}
-            placeholderTextColor={isDark ? "#888" : "#666"}
+            placeholderTextColor={"#777"}
             secureTextEntry={secureTextEntry}
-            autoComplete={secureTextEntry ? "current-password" : "off"}
-            textContentType={secureTextEntry ? "password" : "none"}
-            passwordRules={secureTextEntry ? "minlength: 6;" : undefined}
+            passwordRules={secureTextEntry ? "minlength: 8;" : undefined}
             onFocus={(e) => {
               setIsFocused(true);
-              props.onFocus?.(e);
+              if (props.onFocus) props.onFocus(e);
             }}
             onBlur={(e) => {
               setIsFocused(false);
-              props.onBlur?.(e);
+              if (props.onBlur) props.onBlur(e);
             }}
             {...props}
           />
@@ -98,6 +88,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     minHeight: 56,
   },
+
   inputContainerFocused: {
     borderWidth: 2,
     shadowColor: "#667eea",
@@ -116,7 +107,6 @@ const styles = StyleSheet.create({
   },
   passwordInput: {
     backgroundColor: "transparent",
-    color: "inherit",
   },
   iconLeft: {
     marginRight: 12,
