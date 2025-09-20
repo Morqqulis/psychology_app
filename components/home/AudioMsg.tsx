@@ -1,13 +1,8 @@
-import React, { useEffect, useRef, useState } from "react";
+import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import Slider from "@react-native-community/slider";
 import { Ionicons } from "@expo/vector-icons";
-import {
-  useAudioPlayer,
-  useAudioPlayerStatus,
-  AudioStatus,
-  setAudioModeAsync,
-} from "expo-audio";
+import { useAudioPlayer, useAudioPlayerStatus, AudioStatus } from "expo-audio";
 
 interface IAudioMsgProps {
   message: {

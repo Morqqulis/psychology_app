@@ -1,27 +1,19 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState } from "react";
 import {
   View,
-  Text,
   TextInput,
   StyleSheet,
-  TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
-  Keyboard,
-  Alert,
 } from "react-native";
 import { useMainContext } from "@/providers/MainProvider";
 import { Colors } from "@/constants/theme";
-import { Ionicons } from "@expo/vector-icons";
 import { VoiceRecording } from "./VoiceRecording";
 import SendButton from "./SendButton";
 import {
-  AudioModule,
   RecordingPresets,
-  setAudioModeAsync,
   useAudioRecorder,
   useAudioRecorderState,
-  createAudioPlayer,
 } from "expo-audio";
 import { showToast } from "@/hooks/useToast";
 
@@ -64,7 +56,6 @@ export function ChatInput({ onSendMessage, disabled }: ChatInputProps) {
     }
 
     return recorderState.url;
-    
   };
 
   const cancelVoiceRecording = () => {

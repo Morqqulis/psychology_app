@@ -31,13 +31,13 @@ export default function LoginScreen() {
     },
   });
 
-  const loginMutation = useLogin();
+	const loginMutation = useLogin()
 
   const onSubmit = (data: LoginFormData) => {
     loginMutation.mutate(data, {
       onSuccess: () => {
         Alert.alert("Uğur", "Sistemə uğurla daxil oldunuz!");
-        router.replace("/(tabs)");
+        router.replace("/(tabs)/home");
       },
       onError: (error: any) => {
         const message = error?.message || "Email və ya parol yanlışdır";
