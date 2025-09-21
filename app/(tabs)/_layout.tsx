@@ -1,18 +1,16 @@
 import { Tabs } from "expo-router";
 import React from "react";
-
 import { HapticTab } from "@/components/ui/haptic-tab";
 import { IconSymbol } from "@/components/ui/icon-symbol";
-import { Colors, gradients } from "@/constants/theme";
+import { Colors } from "@/constants/theme";
 import { useMainContext } from "@/providers/MainProvider";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { LinearGradient } from "expo-linear-gradient";
 import { View } from "react-native";
 
 export default function TabLayout() {
   const { them } = useMainContext();
   return (
-    <SafeAreaView style={{ flex: 1 }} edges={["top", "bottom"]}>
+    <SafeAreaView style={{ flex: 1 }} edges={["top"]}>
       <Tabs
         screenOptions={{
           tabBarShowLabel: true,

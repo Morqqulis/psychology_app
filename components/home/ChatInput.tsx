@@ -58,7 +58,10 @@ export function ChatInput({ onSendMessage, disabled }: ChatInputProps) {
     return recorderState.url;
   };
 
-  const cancelVoiceRecording = () => {
+  const cancelVoiceRecording = async () => {
+    if (recorderState.isRecording) {
+      await recorder.stop();
+    }
     setType("voice");
   };
 
@@ -67,7 +70,9 @@ export function ChatInput({ onSendMessage, disabled }: ChatInputProps) {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
     >
-      <View style={[styles.container]}>
+      <View
+        style={[styles.container, { backgroundColor: Colors[them].background }]}
+      >
         <View style={[styles.inputContainer]}>
           {type === "record" ? (
             <VoiceRecording
@@ -108,9 +113,10 @@ const styles = StyleSheet.create({
     alignItems: "flex-end",
     paddingHorizontal: 5,
     paddingVertical: 8,
-    borderTopWidth: 1,
-    borderTopColor: "rgba(0,0,0,0.1)",
-    backgroundColor: "#1f2937",
+    borderTopWidth: 0.2,
+    borderTopColor: "#f3f3f3",
+    // borderTopColor: "rgba(0,0,0,0.1)",
+    // backgroundColor: "#1f2937",
   },
   inputContainer: {
     flex: 1,
@@ -121,7 +127,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     marginRight: 8,
     maxHeight: 100,
-    backgroundColor: "#f9fafb",
+    backgroundColor: "#f3f3f3",
   },
   textInput: {
     flex: 1,

@@ -8,7 +8,6 @@ import {
 import { StatusBar } from "expo-status-bar";
 import Toast from "react-native-toast-message";
 import { UserProvider } from "./UserProvider";
-import { SafeAreaProvider } from "react-native-safe-area-context";
 export { useColorScheme } from "react-native";
 
 export type IThemNames = "dark" | "light";
@@ -29,7 +28,7 @@ export const MainProvider = ({ children }: { children: React.ReactNode }) => {
 
   const isDark = colorScheme === "dark";
   useEffect(() => {
-    setThem(isDark ? "dark" : "light");
+    setThem(!isDark ? "dark" : "light");
   }, [isDark]);
 
   const contextValue = useMemo<IMainContext>(() => {
