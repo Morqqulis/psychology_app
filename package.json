@@ -10,7 +10,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "lint": "expo lint",
-    "tunnel": "expo start --clear --tunnel"
+    "tunnel": "npx expo start --tunnel --reset-cache"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.2",
@@ -51,6 +51,7 @@
     "react-native": "0.81.4",
     "react-native-animatable": "^1.4.0",
     "react-native-gesture-handler": "~2.28.0",
+    "react-native-keyboard-controller": "1.18.5",
     "react-native-reanimated": "~4.1.0",
     "react-native-safe-area-context": "~5.6.0",
     "react-native-screens": "~4.16.0",
