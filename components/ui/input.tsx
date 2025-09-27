@@ -23,7 +23,7 @@ export const Input = forwardRef<TextInput, InputProps>(
   ) => {
     const { them } = useMainContext();
     const [isFocused, setIsFocused] = useState(false);
-    const color = Colors[them].text;
+    const color = Colors[them].textBlack;
     return (
       <View style={styles.container}>
         {label && <Text style={[styles.label, { color }]}>{label}</Text>}

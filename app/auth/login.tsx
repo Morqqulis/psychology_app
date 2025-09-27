@@ -20,28 +20,54 @@ import { LoginFormData, loginSchema } from "@/shared/schemas/auth";
 import { useMainContext } from "@/providers/MainProvider";
 import { Colors, gradients } from "@/constants/theme";
 import { InputControlled } from "@/components/ui/input-controlled";
+import { showToast } from "@/hooks/useToast";
+import { useUserContext } from "@/providers/UserProvider";
+import { addCookie } from "@/functions/cookieActions";
 
 export default function LoginScreen() {
   const { them } = useMainContext();
+  const { setUser } = useUserContext();
   const { control, handleSubmit } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: undefined,
-      password: undefined,
+      email: "test@test.test",
+      password: "Salam123",
+      // email: undefined,
+      // password: undefined,
     },
   });
 
-	const loginMutation = useLogin()
+  const loginMutation = useLogin();
 
   const onSubmit = (data: LoginFormData) => {
     loginMutation.mutate(data, {
-      onSuccess: () => {
-        Alert.alert("Uğur", "Sistemə uğurla daxil oldunuz!");
+      onSuccess: async (data) => {
+        const { token, user } = data;
+        await addCookie("token", token);
+        setUser({
+          id: user.id,
+          name: user.name,
+          role: user.role,
+          surname: user.surname,
+          gender: user.gender,
+          updatedAt: user.updatedAt,
+          createdAt: user.createdAt,
+          email: user.email,
+        });
+        showToast({
+          title: "Uğurlu",
+          message: "Hesaba uğurla daxil oldunuz!",
+          type: "success",
+        });
         router.replace("/(tabs)/home");
       },
       onError: (error: any) => {
         const message = error?.message || "Email və ya parol yanlışdır";
-        Alert.alert("Xəta", message);
+        showToast({
+          title: "Xəta",
+          message,
+          type: "error",
+        });
       },
     });
   };

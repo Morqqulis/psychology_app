@@ -30,7 +30,7 @@ const GenderInput = ({
     male: "Kişi",
     female: "Qadın",
   };
-  const color = Colors[them].text;
+  const color = Colors[them].textBlack;
 
   return (
     <Controller

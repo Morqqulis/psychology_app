@@ -6,6 +6,8 @@ import { ChatHeader } from "@/components/home/ChatHeader";
 import { ChatMessage } from "@/components/home/ChatMessage";
 import { TypingIndicator } from "@/components/home/TypingIndicator";
 import { ChatInput } from "@/components/home/ChatInput";
+import axios from "axios";
+import { uploadApi } from "@/shared/lib/axios";
 
 interface Message {
   id: string;
@@ -41,43 +43,69 @@ export default function ChatScreen() {
     }
   }, [messages]);
 
-  const handleMenuPress = () => console.log("Menu funksionallığı yazacıq");
+  const sendVoiceMessage = async (uri: string) => {
+    try {
+      setIsTyping(true);
+      const formData = new FormData();
+      formData.append("file", {
+        uri,
+        type: "audio/m4a",
+        name: "voice.m4a",
+      } as any);
+      const response = await uploadApi.post("/voice", formData);
+      generateMsg(`${response.data.text}`, false, false);
+    } catch (err) {
+      console.log("Voice upload error:", err);
+      generateMsg(
+        `Mesajınızı əldə edə bilmədim. Zəhmət olmasa yenidən cəhd edin`,
+        false,
+        false
+      );
+    } finally {
+      setIsTyping(false);
+    }
+  };
 
   const simulateAIResponse = async (userMessage: string) => {
     setIsTyping(true);
-    await new Promise((resolve) =>
-      setTimeout(resolve, 1500 + Math.random() * 2000)
-    );
-    const responses = [
-      "Bu çox maraqlı sualdir. Sizə kömək etməyə çalışacam.",
-      "Anlayıram. Bu barədə daha ətraflı danışaq.",
-      "Çox yaxşı sual! Bu mövzu məni maraqlandırır.",
-      "Sizin fikrinizi anlayıram. Gəlin bunu birlikdə araşdıraq.",
-      "Bu məsələ haqqında düşünürəm. Bir neçə variant təklif edə bilərəm.",
-    ];
+    try {
+      const { data, status } = await axios.post(
+        process.env.EXPO_PUBLIC_API_URL + "/chat",
+        { message: userMessage }
+      );
 
-    const aiResponse: Message = {
-      id: Date.now().toString() + "_ai",
-      text: responses[Math.floor(Math.random() * responses.length)],
-      isUser: false,
-      timestamp: new Date(),
-      type: "text",
-    };
-
-    setIsTyping(false);
-    setMessages((prev) => [...prev, aiResponse]);
+      if (status === 200 && data?.reply) {
+        generateMsg(data.reply, false, false);
+      }
+    } catch (error) {
+      generateMsg(
+        `Mesajınızı əldə edə bilmədim. Zəhmət olmasa yenidən cəhd edin`,
+        false,
+        false
+      );
+      console.log({ error });
+    } finally {
+      setIsTyping(false);
+    }
   };
-  const handleSendMessage = async (text: string, isVoice = false) => {
-    const userMessage: Message = {
-      id: Date.now().toString() + "_user",
+  const generateMsg = (text: string, isVoice: boolean, isUser: boolean) => {
+    const message: Message = {
+      id: `${Math.floor(Math.random() * 10000).toString()}${isUser ? "_user" : "_ai"}`,
       type: isVoice ? "voice" : "text",
       text,
-      isUser: true,
+      isUser,
       timestamp: new Date(),
     };
+    setMessages((prev) => [...prev, message]);
+  };
 
-    setMessages((prev) => [...prev, userMessage]);
-    simulateAIResponse(text);
+  const handleSendMessage = async (text: string, isVoice = false) => {
+    generateMsg(text, isVoice, true);
+    if (isVoice) {
+      await sendVoiceMessage(`file://${text}`);
+    } else {
+      simulateAIResponse(text);
+    }
   };
 
   const renderMessage = ({ item, index }: { item: Message; index: number }) => (
@@ -95,7 +123,7 @@ export default function ChatScreen() {
     <View
       style={[styles.container, { backgroundColor: Colors[them].background }]}
     >
-      <ChatHeader onMenuPress={handleMenuPress} />
+      <ChatHeader />
 
       <FlatList
         ref={flatListRef}

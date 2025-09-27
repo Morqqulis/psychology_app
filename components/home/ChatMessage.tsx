@@ -1,8 +1,15 @@
 import React, { useEffect, useRef } from "react";
-import { View, Text, StyleSheet, Animated } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Animated,
+  TouchableOpacity,
+} from "react-native";
 import { useMainContext } from "@/providers/MainProvider";
 import { Colors } from "@/constants/theme";
 import AudioMsg from "./AudioMsg";
+import { handleCopy } from "@/functions/helper";
 
 interface ChatMessageProps {
   message: {
@@ -50,51 +57,60 @@ export function ChatMessage({ message, isNew = false }: ChatMessageProps) {
         },
       ]}
     >
-      <View
-        style={[
-          styles.bubble,
-          {
-            backgroundColor: message.isUser
-              ? Colors[them].chatBubbleUser
-              : Colors[them].chatBubbleAI,
-            marginLeft: message.isUser ? 60 : 0,
-            marginRight: message.isUser ? 0 : 60,
-          },
-        ]}
+      <TouchableOpacity
+        activeOpacity={0.8}
+        onLongPress={() => {
+          if (message.type === "text") {
+            handleCopy(message.text);
+          }
+        }}
       >
-        {message.type === "text" ? (
-          <Text
-            style={[
-              styles.text,
-              {
-                color: message.isUser
-                  ? Colors[them].chatTextUser
-                  : Colors[them].chatTextAI,
-              },
-            ]}
-          >
-            {message.text}
-          </Text>
-        ) : (
-          <AudioMsg message={message} />
-        )}
-
-        <Text
+        <View
           style={[
-            styles.timestamp,
+            styles.bubble,
             {
-              color: message.isUser
-                ? "rgba(255,255,255,0.7)"
-                : Colors[them].icon,
+              backgroundColor: message.isUser
+                ? Colors[them].chatBubbleUser
+                : Colors[them].chatBubbleAI,
+              marginLeft: message.isUser ? 60 : 0,
+              marginRight: message.isUser ? 0 : 60,
             },
           ]}
         >
-          {message.timestamp.toLocaleTimeString("az-AZ", {
-            hour: "2-digit",
-            minute: "2-digit",
-          })}
-        </Text>
-      </View>
+          {message.type === "text" ? (
+            <Text
+              style={[
+                styles.text,
+                {
+                  color: message.isUser
+                    ? Colors[them].chatTextUser
+                    : Colors[them].chatTextAI,
+                },
+              ]}
+            >
+              {message.text}
+            </Text>
+          ) : (
+            <AudioMsg message={message} />
+          )}
+
+          <Text
+            style={[
+              styles.timestamp,
+              {
+                color: message.isUser
+                  ? "rgba(255,255,255,0.7)"
+                  : Colors[them].icon,
+              },
+            ]}
+          >
+            {message.timestamp.toLocaleTimeString("az-AZ", {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
+          </Text>
+        </View>
+      </TouchableOpacity>
     </Animated.View>
   );
 }
@@ -109,14 +125,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 10,
     maxWidth: "80%",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
   },
   text: {
     fontSize: 16,

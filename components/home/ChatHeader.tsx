@@ -3,20 +3,14 @@ import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { useMainContext } from "@/providers/MainProvider";
 import { Colors } from "@/constants/theme";
 import { Ionicons } from "@expo/vector-icons";
+import Menu from "../Menu";
 
-interface ChatHeaderProps {
-  onMenuPress: () => void;
-}
-
-export function ChatHeader({ onMenuPress }: ChatHeaderProps) {
+export function ChatHeader() {
   const { them } = useMainContext();
 
   return (
     <View style={[styles.container, { backgroundColor: Colors[them].surface }]}>
-      <TouchableOpacity onPress={onMenuPress} style={styles.menuButton}>
-        <Ionicons name="menu" size={24} color={Colors[them].text} />
-      </TouchableOpacity>
-
+      <Menu />
       <View style={styles.titleContainer}>
         <Text style={[styles.title, { color: Colors[them].text }]}>Psy</Text>
         <View
@@ -40,13 +34,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     padding: 5,
-  },
-  menuButton: {
-    width: 40,
-    height: 40,
-    justifyContent: "center",
-    alignItems: "center",
-    borderRadius: 20,
   },
   titleContainer: {
     flexDirection: "row",

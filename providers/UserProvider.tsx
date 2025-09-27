@@ -1,65 +1,39 @@
-import axios from "axios";
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
-import { Alert } from "react-native";
-import { router } from "expo-router";
+import { createContext, useContext, useEffect, useState } from "react";
 import { IUser } from "@/shared/lib/types/user";
+import { useProfile } from "@/services/auth/auth";
+import { addCookie } from "@/functions/cookieActions";
 
 interface IUserContext {
   user: IUser | undefined;
   loading: boolean;
   setUser: React.Dispatch<React.SetStateAction<IUser | undefined>>;
-  // getUser: () => void;
 }
 
 const UserContext = createContext<IUserContext>({
   user: {} as IUser | undefined,
   loading: false,
   setUser: () => {},
-  // getUser: async () => {},
 });
 
 export const useUserContext = () => useContext(UserContext);
 
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<IUser | undefined>(undefined);
-  const [loading, setLoading] = useState(false);
-  const getUser = useCallback(async () => {
-    try {
-      setLoading(true);
-      const timeout = setTimeout(() => {
-        setUser({
-          _id: "1",
-          name: "John Doe",
-          role: "user",
-        });
-        setLoading(false);
-      }, 2000);
-      return () => clearTimeout(timeout);
-    } catch (error: any) {
-      console.log("error in getUser", error?.response?.data?.message || error);
-    } finally {
-      // setLoading(false);
-    }
-  }, []);
-
+  const { data, isLoading } = useProfile();
   useEffect(() => {
-    getUser();
-  }, []);
-
+    if (!isLoading && data?.token && data.user.id) {
+      const { createdAt, email, gender, id, name, role, surname, updatedAt } =
+        data.user;
+      setUser({ createdAt, email, gender, id, name, role, surname, updatedAt });
+      addCookie("token", data.token);
+    }
+  }, [data, isLoading]);
   return (
     <UserContext.Provider
       value={{
         user,
         setUser,
-        loading,
-        // setUser,
-        // getUser,
+        loading: isLoading,
       }}
     >
       {children}

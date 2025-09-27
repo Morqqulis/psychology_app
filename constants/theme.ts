@@ -7,6 +7,7 @@ const tintColorDark = "#FFA001";
 export const Colors: Record<IThemNames, { [key: string]: string }> = {
   dark: {
     text: "#f9fafb",
+    textBlack: "#1a1a1a",
     tint: tintColorDark,
     tabIconDefault: "#fff",
     icon: "#6b7280",
@@ -30,6 +31,7 @@ export const Colors: Record<IThemNames, { [key: string]: string }> = {
   },
   light: {
     text: "#1a1a1a",
+    textBlack: "#1a1a1a",
     tint: tintColorLight,
     tabIconDefault: "#fff",
     icon: "#9ca3af",

@@ -3,7 +3,6 @@ import Toast, {
   ToastShowParams,
   ToastType,
 } from "react-native-toast-message";
-// import { createAudioPlayer } from "expo-audio";
 import { Platform } from "react-native";
 
 export async function showToast({
@@ -23,31 +22,22 @@ export async function showToast({
   topOffset?: number;
   type?: ToastType;
 }) {
-  try {
-    // const player = createAudioPlayer(
-    //   require("../assets/sound/notification.mp3")
-    // );
-    // player.play();
-
-    Toast.show({
-      ...(title ? { text1: title } : {}),
-      ...(message ? { text2: message } : {}),
-      text2Style: {
-        fontSize: 14,
-        color: "#333",
-      },
-      text1Style: {
-        fontSize: 14,
-        fontWeight: "600",
-      },
-      type,
-      position,
-      visibilityTime,
-      autoHide: true,
-      topOffset,
-      ...options,
-    });
-  } catch (error) {
-    console.log("Error playing sound", error);
-  }
+  Toast.show({
+    ...(title ? { text1: title } : {}),
+    ...(message ? { text2: message } : {}),
+    text2Style: {
+      fontSize: 14,
+      color: "#333",
+    },
+    text1Style: {
+      fontSize: 14,
+      fontWeight: "600",
+    },
+    type,
+    position,
+    visibilityTime,
+    autoHide: true,
+    topOffset,
+    ...options,
+  });
 }

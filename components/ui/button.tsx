@@ -9,8 +9,6 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { useMainContext } from "@/providers/MainProvider";
 import { Colors, gradients } from "@/constants/theme";
-import { Ionicons } from "@expo/vector-icons";
-import Loader from "../Loader";
 
 interface ButtonProps extends TouchableOpacityProps {
   title: string;

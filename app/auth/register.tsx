@@ -6,7 +6,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Alert,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useForm } from "react-hook-form";
@@ -21,6 +20,7 @@ import { useMainContext } from "@/providers/MainProvider";
 import { Colors, gradients } from "@/constants/theme";
 import { InputControlled } from "@/components/ui/input-controlled";
 import GenderInput from "@/components/GenderInput";
+import { showToast } from "@/hooks/useToast";
 
 export default function RegisterScreen() {
   const { them } = useMainContext();
@@ -36,29 +36,28 @@ export default function RegisterScreen() {
       gender: undefined,
     },
   });
-  // console.log(watch())
 
-	const registerMutation = useRegister()
+  const registerMutation = useRegister();
 
   const onSubmit = (data: RegisterFormData) => {
-    registerMutation.mutate(
-      {
-        name: data.name,
-        email: data.email,
-        password: data.password,
+    registerMutation.mutate(data, {
+      onSuccess: () => {
+        showToast({
+          title: "Uğurlu",
+          message: "Hesab uğurla yaradıldı!",
+          type: "success",
+        });
+        router.replace("/auth/login");
       },
-      {
-        onSuccess: () => {
-          Alert.alert("Uğur", "Hesab uğurla yaradıldı!", [
-            { text: "OK", onPress: () => router.replace("/auth/login") },
-          ]);
-        },
-        onError: (error: any) => {
-          const message = error?.message || "Hesab yaradıla bilmədi";
-          Alert.alert("Xəta", message);
-        },
-      }
-    );
+      onError: (error: any) => {
+        const message = error?.message || "Hesab yaradıla bilmədi";
+        showToast({
+          title: "Xəta",
+          message,
+          type: "error",
+        });
+      },
+    });
   };
 
   return (

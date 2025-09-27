@@ -1,5 +1,10 @@
 export interface IUser {
-  _id: string;
+  id: number;
   name: string;
   role: "user" | "doctor";
+  surname: string;
+  gender: "male" | "female";
+  updatedAt: string;
+  createdAt: string;
+  email: string;
 }

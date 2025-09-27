@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from "react";
+import React from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { StyleSheet, View } from "react-native";
@@ -14,8 +14,8 @@ import { useUserContext } from "@/providers/UserProvider";
 export default function index() {
   const { user, loading } = useUserContext();
   const { them } = useMainContext();
-  
-  if (user?._id)
+
+  if (user?.id)
     return user?.role === "user" && <Redirect href={"/(tabs)/home"} />;
 
   return (
