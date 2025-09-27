@@ -3,6 +3,7 @@ import { AppState, Platform } from 'react-native'
 import NetInfo from '@react-native-community/netinfo'
 import { AxiosError } from 'axios'
 
+
 focusManager.setEventListener(handleFocus => {
 	if (Platform.OS !== 'web') {
 		const subscription = AppState.addEventListener('change', state => {
