@@ -10,7 +10,7 @@ export async function showToast({
   message,
   options = {},
   position = "top",
-  visibilityTime = 5000,
+  visibilityTime = 2000,
   topOffset = Platform.OS === "ios" ? 20 : 40,
   type = "info",
 }: {

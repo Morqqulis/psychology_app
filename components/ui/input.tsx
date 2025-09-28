@@ -1,10 +1,12 @@
-import React, { forwardRef, useState } from "react";
+import React from "react";
 import {
   TextInput,
   View,
   Text,
   StyleSheet,
   TextInputProps,
+  StyleProp,
+  TextStyle,
 } from "react-native";
 import { useMainContext } from "@/providers/MainProvider";
 import { Colors } from "@/constants/theme";
@@ -14,62 +16,64 @@ interface InputProps extends TextInputProps {
   error?: string;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
+  style?: StyleProp<TextStyle>;
+  secureTextEntry?: TextInputProps["secureTextEntry"];
+  variant?: "default" | "primary";
 }
 
-export const Input = forwardRef<TextInput, InputProps>(
-  (
-    { label, error, leftIcon, rightIcon, style, secureTextEntry, ...props },
-    ref
-  ) => {
-    const { them } = useMainContext();
-    const [isFocused, setIsFocused] = useState(false);
-    const color = Colors[them].textBlack;
-    return (
-      <View style={styles.container}>
-        {label && <Text style={[styles.label, { color }]}>{label}</Text>}
-        <View
+export const Input = ({
+  label,
+  error,
+  leftIcon,
+  rightIcon,
+  style,
+  secureTextEntry,
+  variant = "default",
+  ...props
+}: InputProps) => {
+  const { them } = useMainContext();
+  const { backgroundColor, color } =
+    variant === "primary"
+      ? {
+          color: Colors[them].black,
+          backgroundColor: Colors[them].light,
+        }
+      : {
+          color: Colors[them].text,
+          backgroundColor: Colors[them].surface,
+        };
+
+  return (
+    <View style={styles.container}>
+      {label && <Text style={[styles.label, { color }]}>{label}</Text>}
+      <View
+        style={[
+          styles.inputContainer,
+          {
+            backgroundColor,
+            borderColor: error ? "#ff4757" : Colors[them].lightgray,
+          },
+        ]}
+      >
+        {leftIcon && <View style={styles.iconLeft}>{leftIcon}</View>}
+        <TextInput
           style={[
-            styles.inputContainer,
-            {
-              backgroundColor: Colors[them].inputContainer,
-              borderColor: error
-                ? "#ff4757"
-                : isFocused
-                  ? "#667eea"
-                  : Colors[them].inputBorder,
-            },
-            isFocused && styles.inputContainerFocused,
+            styles.input,
+            { color, backgroundColor: "transparent" },
+            secureTextEntry && styles.passwordInput,
+            style,
           ]}
-        >
-          {leftIcon && <View style={styles.iconLeft}>{leftIcon}</View>}
-          <TextInput
-            ref={ref}
-            style={[
-              styles.input,
-              { color, backgroundColor: "transparent" },
-              secureTextEntry && styles.passwordInput,
-              style,
-            ]}
-            placeholderTextColor={"#777"}
-            secureTextEntry={secureTextEntry}
-            passwordRules={secureTextEntry ? "minlength: 8;" : undefined}
-            onFocus={(e) => {
-              setIsFocused(true);
-              if (props.onFocus) props.onFocus(e);
-            }}
-            onBlur={(e) => {
-              setIsFocused(false);
-              if (props.onBlur) props.onBlur(e);
-            }}
-            {...props}
-          />
-          {rightIcon && <View style={styles.iconRight}>{rightIcon}</View>}
-        </View>
-        {error && <Text style={styles.errorText}>{error}</Text>}
+          placeholderTextColor={"#777"}
+          secureTextEntry={secureTextEntry}
+          passwordRules={secureTextEntry ? "minlength: 8;" : undefined}
+          {...props}
+        />
+        {rightIcon && <View style={styles.iconRight}>{rightIcon}</View>}
       </View>
-    );
-  }
-);
+      {error && <Text style={styles.errorText}>{error}</Text>}
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -87,18 +91,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 16,
     minHeight: 56,
-  },
-
-  inputContainerFocused: {
-    borderWidth: 2,
-    shadowColor: "#667eea",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
   },
   input: {
     flex: 1,

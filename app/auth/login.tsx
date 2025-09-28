@@ -105,6 +105,8 @@ export default function LoginScreen() {
                 placeholder="Email ünvanınızı daxil edin"
                 keyboardType="email-address"
                 leftIcon="mail-outline"
+                variant="primary"
+
               />
               <InputControlled
                 control={control}
@@ -113,6 +115,7 @@ export default function LoginScreen() {
                 placeholder="Şifrənizi daxil edin"
                 autoComplete="current-password"
                 leftIcon={"lock-closed-outline"}
+                variant="primary"
               />
 
               <Button

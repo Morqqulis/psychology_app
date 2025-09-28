@@ -9,17 +9,16 @@ import { StatusBar } from "expo-status-bar";
 import Toast from "react-native-toast-message";
 import { UserProvider } from "./UserProvider";
 import { BadgeToast } from "@/hooks/showBadge";
+import { getCookie } from "@/functions/cookieActions";
 export { useColorScheme } from "react-native";
 
 export type IThemNames = "dark" | "light";
 interface IMainContext {
-  isDark: boolean;
   them: IThemNames;
   setThem: React.Dispatch<React.SetStateAction<IThemNames>>;
 }
 
 const MainContext = createContext<IMainContext>({
-  isDark: false,
   them: "dark",
   setThem: () => {},
 } as IMainContext);
@@ -28,19 +27,27 @@ export const useMainContext = () => useContext(MainContext);
 export const MainProvider = ({ children }: { children: React.ReactNode }) => {
   const [them, setThem] = useState<IThemNames>("dark");
   const colorScheme = useColorScheme();
-
   const isDark = colorScheme === "dark";
+
+  const getTheme = async () => {
+    const theme = await getCookie("theme");
+    if (theme) {
+      setThem(theme);
+    } else {
+      setThem(isDark ? "dark" : "light");
+    }
+  };
+
   useEffect(() => {
-    setThem(isDark ? "dark" : "light");
-  }, [isDark]);
+    getTheme();
+  }, []);
 
   const contextValue = useMemo<IMainContext>(() => {
     return {
-      isDark,
       them,
       setThem,
     };
-  }, [isDark, them]);
+  }, [them]);
 
   return (
     <MainContext.Provider value={contextValue}>

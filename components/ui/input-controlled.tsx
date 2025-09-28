@@ -6,7 +6,7 @@ import { Input } from "./input";
 import { useMainContext } from "@/providers/MainProvider";
 import { Colors } from "@/constants/theme";
 
-interface CustomInputProps {
+interface CustomInputProps extends TextInputProps {
   control: Control<any>;
   name: string;
   defaultValue?: string;
@@ -14,9 +14,7 @@ interface CustomInputProps {
   placeholder?: string;
   leftIcon?: keyof typeof Ionicons.glyphMap;
   rightIcon?: keyof typeof Ionicons.glyphMap;
-  keyboardType?: TextInputProps["keyboardType"];
-  autoCapitalize?: TextInputProps["autoCapitalize"];
-  autoComplete?: TextInputProps["autoComplete"];
+  variant?: "default" | "primary";
 }
 
 export const InputControlled = ({
@@ -30,28 +28,26 @@ export const InputControlled = ({
   keyboardType = "default",
   autoCapitalize = "none",
   autoComplete = "off",
+  variant = "default",
+  ...props
 }: CustomInputProps) => {
   const isPasswordField = ["password", "confirmPassword"].includes(name);
   const [show, setShow] = useState(!isPasswordField);
   const { them } = useMainContext();
+
   return (
     <Controller
       control={control}
       name={name}
       defaultValue={defaultValue}
-      render={({
-        field: { value, onChange, onBlur },
-        fieldState: { error },
-      }) => (
+      render={({ field: { value, onChange }, fieldState: { error } }) => (
         <Input
           label={label}
           error={error?.message}
           placeholder={placeholder}
           value={value}
           onChangeText={onChange}
-          onBlur={(e) => {
-            onBlur();
-          }}
+          variant={variant}
           keyboardType={keyboardType}
           autoCapitalize={autoCapitalize}
           textContentType={isPasswordField ? "password" : "none"}
@@ -74,6 +70,7 @@ export const InputControlled = ({
               <Ionicons name={rightIcon} size={20} color={Colors[them].icon} />
             )
           }
+          {...props}
         />
       )}
     />

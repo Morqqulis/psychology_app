@@ -30,7 +30,7 @@ export const Button: React.FC<ButtonProps> = ({
   style,
   ...props
 }) => {
-  const { isDark, them } = useMainContext();
+  const { them } = useMainContext();
 
   const getButtonHeight = () => {
     switch (size) {
@@ -92,12 +92,12 @@ export const Button: React.FC<ButtonProps> = ({
           height: getButtonHeight(),
           backgroundColor:
             variant === "secondary"
-              ? isDark
+              ? them === "dark"
                 ? "#2a2a2a"
                 : "#f8f9fa"
               : "transparent",
           borderWidth: variant === "outline" ? 1 : 0,
-          borderColor: isDark ? "#404040" : "#e9ecef",
+          borderColor: them === "dark" ? "#404040" : "#e9ecef",
         },
         style,
       ]}

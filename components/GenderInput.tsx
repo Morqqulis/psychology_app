@@ -11,6 +11,7 @@ interface GenderInputProps {
   name: string;
   label?: string;
   placeholder: string;
+  variant?: "default" | "primary";
 }
 
 const GenderInput = ({
@@ -18,6 +19,7 @@ const GenderInput = ({
   name,
   placeholder,
   label,
+  variant = "default",
 }: GenderInputProps) => {
   const [modalVisible, setModalVisible] = useState(false);
   const { them } = useMainContext();
@@ -30,8 +32,16 @@ const GenderInput = ({
     male: "Kişi",
     female: "Qadın",
   };
-  const color = Colors[them].textBlack;
-
+  const { backgroundColor, color } =
+    variant === "primary"
+      ? {
+          color: Colors[them].black,
+          backgroundColor: Colors[them].light,
+        }
+      : {
+          color: Colors[them].text,
+          backgroundColor: Colors[them].surface,
+        };
   return (
     <Controller
       control={control}
@@ -45,8 +55,8 @@ const GenderInput = ({
             style={[
               styles.inputContainer,
               {
-                backgroundColor: Colors[them].inputContainer,
-                borderColor: error ? "#ff4757" : Colors[them].inputBorder,
+                backgroundColor,
+                borderColor: error ? "#ff4757" : Colors[them].lightgray,
               },
             ]}
           >

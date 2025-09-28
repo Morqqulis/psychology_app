@@ -45,7 +45,32 @@ export const loginSchema = z.object({
   email: z.email({ message: "Düzgün email ünvanı daxil edin" }),
   password: PasswordSchema,
 });
+export const editProfileSchema = z.object({
+  email: z.email({ message: "Düzgün email ünvanı daxil edin" }),
+  name: z
+    .string({
+      error: "Adınızı daxil edin",
+    })
+    .trim()
+    .min(2, {
+      message: "Adınızı daxil edin",
+    }),
 
+  surname: z
+    .string({
+      error: "Soyadınızı daxil edin",
+    })
+    .trim()
+    .min(3, {
+      message: "Soyadınızı daxil edin",
+    }),
+
+  gender: z.enum(["male", "female"], {
+    error: "Cinsinizi seçin",
+  }),
+});
+
+export type EditProfileFormData = z.infer<typeof editProfileSchema>;
 export type LoginFormData = z.infer<typeof loginSchema>;
 export type RegisterFormData = z.infer<typeof registerSchema>;
 

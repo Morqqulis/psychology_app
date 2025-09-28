@@ -1,12 +1,13 @@
 import { Colors } from "@/constants/theme";
 import { useMainContext } from "@/providers/MainProvider";
+import { IAiInputType } from "@/shared/interface";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, TouchableOpacity } from "react-native";
 
 interface ISendButtonProps {
-  type: "text" | "voice" | "record";
-  setType: React.Dispatch<React.SetStateAction<"text" | "voice" | "record">>;
+  type: IAiInputType;
+  setType: React.Dispatch<React.SetStateAction<IAiInputType>>;
   handleSend: () => void;
 }
 

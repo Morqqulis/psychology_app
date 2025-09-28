@@ -1,16 +1,13 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 import { useMainContext } from "@/providers/MainProvider";
 import { Colors } from "@/constants/theme";
-import { Ionicons } from "@expo/vector-icons";
-import Menu from "../Menu";
 
 export function ChatHeader() {
   const { them } = useMainContext();
 
   return (
     <View style={[styles.container, { backgroundColor: Colors[them].surface }]}>
-      <Menu />
       <View style={styles.titleContainer}>
         <Text style={[styles.title, { color: Colors[them].text }]}>Psy</Text>
         <View
@@ -20,8 +17,6 @@ export function ChatHeader() {
           ]}
         />
       </View>
-
-      <View style={styles.placeholder} />
     </View>
   );
 }
@@ -32,12 +27,13 @@ const styles = StyleSheet.create({
     borderBottomColor: "rgba(0,0,0,0.1)",
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    padding: 5,
+    justifyContent: "center",
+    height: 50,
   },
   titleContainer: {
     flexDirection: "row",
     alignItems: "center",
+    // position: "relative",
   },
   title: {
     fontSize: 20,
@@ -48,8 +44,8 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-  },
-  placeholder: {
-    width: 40,
+    // position: "absolute",
+    // right: -5,
+    // top: 3,
   },
 });

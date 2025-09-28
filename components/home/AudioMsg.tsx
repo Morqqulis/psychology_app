@@ -3,6 +3,8 @@ import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import Slider from "@react-native-community/slider";
 import { Ionicons } from "@expo/vector-icons";
 import { useAudioPlayer, useAudioPlayerStatus, AudioStatus } from "expo-audio";
+import { File } from "expo-file-system";
+import { showBadge } from "@/hooks/showBadge";
 
 interface IAudioMsgProps {
   message: {
@@ -17,16 +19,28 @@ interface IAudioMsgProps {
 export default function AudioMsg({ message }: IAudioMsgProps) {
   const player = useAudioPlayer(message.text);
   const status: AudioStatus = useAudioPlayerStatus(player);
+
+  const fileExists = async (uri: string) => {
+    try {
+      const file = new File(`file://${uri}`);
+      return file.exists;
+    } catch (e) {
+      return false;
+    }
+  };
+
   const togglePlayback = async () => {
-    if (player) {
-      if (status.playing) {
-        player.pause();
-      } else {
-        if (status.currentTime >= status.duration) {
-          await player.seekTo(0);
-        }
-        player.play();
+    if (!player) return;
+    const exists = await fileExists(message.text);
+    if (!exists) return showBadge("Səsli mesaj tapılmadı", "top");
+
+    if (status.playing) {
+      player.pause();
+    } else {
+      if (status.currentTime >= status.duration) {
+        await player.seekTo(0);
       }
+      player.play();
     }
   };
 

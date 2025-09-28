@@ -9,7 +9,6 @@ export interface User {
   createdAt: string;
   updatedAt: string;
 }
-
 export interface LoginResponse {
   // doc: User;
   exp: number;

@@ -92,6 +92,7 @@ export default function RegisterScreen() {
                 label="Ad"
                 placeholder="Adınızı daxil edin"
                 leftIcon={"person-outline"}
+                variant="primary"
                 autoCapitalize="words"
               />
 
@@ -100,6 +101,7 @@ export default function RegisterScreen() {
                 name="surname"
                 label="Soyad"
                 placeholder="Soyadınızı daxil edin"
+                variant="primary"
                 leftIcon={"person-outline"}
                 autoCapitalize="words"
               />
@@ -109,6 +111,7 @@ export default function RegisterScreen() {
                 name="email"
                 label="Email"
                 placeholder="Email ünvanınızı daxil edin"
+                variant="primary"
                 leftIcon={"mail-outline"}
                 keyboardType="email-address"
               />
@@ -117,12 +120,14 @@ export default function RegisterScreen() {
                 control={control}
                 name="gender"
                 label="Cinsiyyət"
+                variant="primary"
                 placeholder="Cinsinizi seçin"
               />
               <InputControlled
                 control={control}
                 name="password"
                 label="Şifrə"
+                variant="primary"
                 placeholder="Şifrənizi daxil edin"
                 autoComplete="password"
                 leftIcon={"lock-closed-outline"}
@@ -134,6 +139,7 @@ export default function RegisterScreen() {
                 placeholder="Şifrənizi təkrar daxil edin"
                 autoComplete="password"
                 leftIcon={"lock-closed-outline"}
+                variant="primary"
               />
 
               <Text style={[styles.passwordHint, { color: Colors[them].text }]}>

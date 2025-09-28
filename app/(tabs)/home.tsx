@@ -88,6 +88,7 @@ export default function ChatScreen() {
       setIsTyping(false);
     }
   };
+  
   const generateMsg = (text: string, isVoice: boolean, isUser: boolean) => {
     const message: Message = {
       id: `${Math.floor(Math.random() * 10000).toString()}${isUser ? "_user" : "_ai"}`,

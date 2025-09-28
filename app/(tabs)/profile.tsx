@@ -1,37 +1,63 @@
+import Menu from "@/components/Menu";
+import ProfileInfo from "@/components/profile/info/ProfileInfo";
+import Settings from "@/components/profile/settings/Settings";
 import { Colors } from "@/constants/theme";
 import { useMainContext } from "@/providers/MainProvider";
-import React from "react";
-import { View, Text, StyleSheet, Button } from "react-native";
+import { IProfileLabels, menuItems } from "@/shared/static/menu";
+import React, { useState } from "react";
+import { View, Text, StyleSheet } from "react-native";
 
 interface IprofileProps {}
 
 export default function profile({}: IprofileProps) {
-  const { setThem, them } = useMainContext();
+  const [selectedLabel, setSelectedLabel] = useState<IProfileLabels>("profile");
+  const { them } = useMainContext();
+
+  const color = them === "dark" ? Colors[them].text : Colors[them].blue;
+
   return (
     <View
-      className="flex-1 py-6 px-2"
       style={[styles.container, { backgroundColor: Colors[them].background }]}
     >
-      <Text
-        className="text-2xl font-bold "
-        style={{ color: Colors[them].text }}
+      <View
+        style={[styles.header, { borderBottomColor: Colors[them].charcoal }]}
       >
-        Hesab idarə etmə səhifəsi
-      </Text>
-      <View className="flex-row gap-6 mt-20 border border-gray-400 p-2 w-full items-center">
-        <Text
-          className="text-lg font-semibold"
-          style={{ color: Colors[them].text }}
-        >
-          Mövzu seç
+        <Text style={[styles.title, { color }]}>
+          {menuItems[selectedLabel]}
         </Text>
-        <Button title="Qaranlıq" onPress={() => setThem("dark")} />
-        <Button title="İşıqlı" onPress={() => setThem("light")} />
+        <View style={styles.btnContainer}>
+          <Menu
+            setSelectedLabel={setSelectedLabel}
+            selectedLabel={selectedLabel}
+          />
+        </View>
       </View>
+
+      {selectedLabel === "profile" && <ProfileInfo />}
+      {selectedLabel === "settings" && <Settings />}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {},
+  container: {
+    flex: 1,
+  },
+  header: {
+    height: 55,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 10,
+    borderBottomWidth: 0.5,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: "600",
+  },
+  btnContainer: {
+    flexDirection: "row",
+    gap: 5,
+    alignItems: "center",
+  },
 });

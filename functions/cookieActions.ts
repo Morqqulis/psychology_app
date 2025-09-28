@@ -1,12 +1,12 @@
 import * as SecureStore from "expo-secure-store";
 
-// export const removeCookie = async (key: string) => {
-//   try {
-//     await SecureStore.deleteItemAsync(key);
-//   } catch (error) {
-//     console.error("Tokeni silməyə çalışarkən xəta:", error);
-//   }
-// };
+export const removeCookie = async (key: string) => {
+  try {
+    await SecureStore.deleteItemAsync(key);
+  } catch (error) {
+    console.error("Tokeni silməyə çalışarkən xəta:", error);
+  }
+};
 
 export const addCookie = async (key: string, value: any) => {
   try {
