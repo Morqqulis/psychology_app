@@ -35,6 +35,7 @@ export const registerSchema = z
     gender: z.enum(["male", "female"], {
       error: "Cinsinizi seçin",
     }),
+    referredBy: z.string().optional(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Şifrələr uyğun gəlmir",

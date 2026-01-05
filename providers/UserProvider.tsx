@@ -1,42 +1,96 @@
-import { createContext, useContext, useEffect, useState } from "react";
-import { IUser } from "@/shared/lib/types/user";
-import { useProfile } from "@/services/auth/auth";
-import { addCookie } from "@/functions/cookieActions";
+import { addCookie, removeCookie } from "@/functions/cookieActions"
+import { useProfile } from "@/services/auth/auth"
+import api from "@/shared/lib/axios"
+import { IUser } from "@/shared/lib/types/user"
+import AsyncStorage from "@react-native-async-storage/async-storage"
+import { useQueryClient } from "@tanstack/react-query"
+import { createContext, useContext, useEffect, useState } from "react"
 
 interface IUserContext {
-  user: IUser | undefined;
-  loading: boolean;
-  setUser: React.Dispatch<React.SetStateAction<IUser | undefined>>;
+   user: IUser | undefined
+   loading: boolean
+   setUser: React.Dispatch<React.SetStateAction<IUser | undefined>>
 }
 
-const UserContext = createContext<IUserContext>({
-  user: {} as IUser | undefined,
-  loading: false,
-  setUser: () => {},
-});
+const UserContext = createContext<IUserContext>( {
+   user: {} as IUser | undefined,
+   loading: false,
+   setUser: () => { },
+} )
 
-export const useUserContext = () => useContext(UserContext);
+export const useUserContext = () => useContext( UserContext )
 
-export const UserProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<IUser | undefined>(undefined);
-  const { data, isLoading } = useProfile();
-  useEffect(() => {
-    if (!isLoading && data?.token && data.user.id) {
-      const { createdAt, email, gender, id, name, role, surname, updatedAt } =
-        data.user;
-      setUser({ createdAt, email, gender, id, name, role, surname, updatedAt });
-      addCookie("token", data.token);
-    }
-  }, [data, isLoading]);
-  return (
-    <UserContext.Provider
-      value={{
-        user,
-        setUser,
-        loading: isLoading,
-      }}
-    >
-      {children}
-    </UserContext.Provider>
-  );
-};
+export const UserProvider = ( { children }: { children: React.ReactNode } ) => {
+   const [ user, setUser ] = useState<IUser | undefined>( undefined )
+   const { data, isLoading, error } = useProfile()
+   const queryClient = useQueryClient()
+   useEffect( () => {
+      if ( !isLoading && data?.token && data.user.id ) {
+         const {
+            createdAt,
+            email,
+            gender,
+            id,
+            name,
+            role,
+            surname,
+            updatedAt,
+            status,
+            totalMessagesUsed,
+            invitedCount,
+            referralCode,
+            referredBy,
+         } = data.user
+         setUser( {
+            createdAt,
+            email,
+            gender,
+            id,
+            name,
+            role,
+            surname,
+            updatedAt,
+            status,
+            totalMessagesUsed,
+            invitedCount,
+            referralCode,
+            referredBy,
+         } )
+         addCookie( "token", data.token )
+      }
+   }, [ data, isLoading ] )
+
+   useEffect( () => {
+      if ( !error ) return
+      setUser( undefined )
+      removeCookie( "token" )
+      queryClient.removeQueries( { queryKey: [ "profile" ] } )
+      queryClient.removeQueries( { queryKey: [ "chat" ] } )
+   }, [ error, queryClient ] )
+
+   useEffect( () => {
+      const applyReferral = async () => {
+         if ( !user || user.referredBy ) return
+         const code = await AsyncStorage.getItem( "referralCode" )
+         if ( !code ) return
+         try {
+            await api.post( "/referrals/claim", { referralCode: code } )
+            await AsyncStorage.removeItem( "referralCode" )
+         } catch {
+            // silent
+         }
+      }
+      applyReferral()
+   }, [ user ] )
+   return (
+      <UserContext.Provider
+         value={{
+            user,
+            setUser,
+            loading: isLoading,
+         }}
+      >
+         {children}
+      </UserContext.Provider>
+   )
+}

@@ -7,6 +7,8 @@ import {
 } from "@react-navigation/native";
 import { StatusBar } from "expo-status-bar";
 import Toast from "react-native-toast-message";
+import * as Linking from "expo-linking";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { UserProvider } from "./UserProvider";
 import { BadgeToast } from "@/hooks/showBadge";
 import { getCookie } from "@/functions/cookieActions";
@@ -40,6 +42,39 @@ export const MainProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     getTheme();
+  }, []);
+
+  useEffect(() => {
+    const handleDeepLink = async (url: string) => {
+      const parsed = Linking.parse(url);
+      if (parsed.path === "pay/success") {
+        Toast.show({ type: "success", text1: "Оплата прошла успешно" });
+      }
+      if (parsed.path === "pay/error") {
+        Toast.show({ type: "error", text1: "Оплата не завершена" });
+      }
+      if (parsed.path?.startsWith("ref/")) {
+        const code = parsed.path.replace("ref/", "");
+        if (code) {
+          await AsyncStorage.setItem("referralCode", code);
+          Toast.show({ type: "info", text1: "Dəvət kodu saxlanıldı" });
+        }
+      }
+    };
+
+    const listen = Linking.addEventListener("url", (event) => {
+      handleDeepLink(event.url);
+    });
+
+    Linking.getInitialURL().then((initialUrl) => {
+      if (initialUrl) {
+        handleDeepLink(initialUrl);
+      }
+    });
+
+    return () => {
+      listen.remove();
+    };
   }, []);
 
   const contextValue = useMemo<IMainContext>(() => {

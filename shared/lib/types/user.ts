@@ -7,4 +7,9 @@ export interface IUser {
   id: number;
   updatedAt: string;
   createdAt: string;
+  status?: "basic" | "vip";
+  totalMessagesUsed?: number;
+  invitedCount?: number;
+  referralCode?: string;
+  referredBy?: string | null;
 }

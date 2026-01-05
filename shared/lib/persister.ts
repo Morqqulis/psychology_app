@@ -1,9 +1,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister'
 
-export const persister = createAsyncStoragePersister({
-	storage: AsyncStorage,
-	key: 'psychology_app_cache',
-	serialize: JSON.stringify,
-	deserialize: JSON.parse,
-})
+export const persister = createAsyncStoragePersister( {
+   storage: AsyncStorage,
+   key: 'nur_yolu_cache',
+   serialize: JSON.stringify,
+   deserialize: JSON.parse,
+} )

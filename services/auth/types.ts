@@ -8,6 +8,11 @@ export interface User {
   sessions: string[];
   createdAt: string;
   updatedAt: string;
+  status?: "basic" | "vip";
+  totalMessagesUsed?: number;
+  invitedCount?: number;
+  referralCode?: string;
+  referredBy?: string | null;
 }
 export interface LoginResponse {
   // doc: User;
@@ -45,4 +50,5 @@ export interface RegisterRequest {
   name: string;
   surname: string;
   gender: "male" | "female";
+  referredBy?: string;
 }
