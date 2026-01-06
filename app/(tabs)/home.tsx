@@ -13,6 +13,7 @@ import { useMainContext } from '@/providers/MainProvider'
 import { useProfile } from '@/services/auth/auth'
 import { useChatHistory, useChatMeta, useSendMessage } from '@/services/chat/chat'
 import { startEpointPayment } from '@/services/payments/epoint'
+import { useSettings } from '@/services/settings/settings'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FlatList, StyleSheet, View } from 'react-native'
 
@@ -44,6 +45,7 @@ export default function ChatScreen() {
    const flatListRef = useRef<FlatList<Message>>( null )
 
    const profile = useProfile()
+   const { data: settings } = useSettings()
    const userId = profile.data?.user.id
    const { data: chatHistory, isLoading: historyLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useChatHistory( userId )
    const { data: chatMeta, refetch: refetchChatMeta } = useChatMeta( userId )
@@ -55,7 +57,8 @@ export default function ChatScreen() {
    const serverUsed = chatMeta?.pages?.[ 0 ]?.messageCount ?? user?.totalMessagesUsed ?? 0
    const used = usedLocal ?? serverUsed
    const bonus = Math.floor( invitedCount / 5 ) * 5
-   const maxFree = 5 + bonus
+   const freeLimit = settings?.freeMessageLimit ?? 5
+   const maxFree = freeLimit + bonus
    const remaining = Math.max( 0, maxFree - used )
 
    useEffect( () => {
@@ -231,8 +234,9 @@ export default function ChatScreen() {
       try {
          setIsPaying( true )
          const orderId = `mobile-${Date.now()}`
+         const paymentAmount = settings?.paymentAmount ?? 5
          await startEpointPayment( {
-            amount: 5,
+            amount: paymentAmount,
             orderId,
             description: "AI limitsiz istifadə üçün ödəniş",
          } )
@@ -295,16 +299,15 @@ export default function ChatScreen() {
                contentContainerStyle={styles.messagesContainer}
                showsVerticalScrollIndicator={false}
                keyboardShouldPersistTaps="handled"
-               getItemLayout={( _, index ) => ( {
-                  length: 88,
-                  offset: 88 * index,
-                  index,
-               } )}
-               maintainVisibleContentPosition={{ minIndexForVisible: 0 }}
             />
             <ScrollToBottomButton
                visible={!isAtBottom}
-               onPress={() => flatListRef.current?.scrollToEnd( { animated: true } )}
+               onPress={() => {
+                  flatListRef.current?.scrollToOffset( {
+                     offset: 999999,
+                     animated: true,
+                  } )
+               }}
             />
          </View>
 
@@ -316,6 +319,7 @@ export default function ChatScreen() {
             isVip={isVip}
             isPaying={isPaying}
             remaining={remaining}
+            paymentAmount={settings?.paymentAmount ?? 5}
             onUpgrade={handleUpgrade}
          />
       </View>

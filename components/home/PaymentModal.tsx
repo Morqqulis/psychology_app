@@ -9,6 +9,7 @@ interface PaymentModalProps {
    isVip: boolean
    isPaying: boolean
    remaining: number
+   paymentAmount: number
    onUpgrade: () => void
 }
 
@@ -18,6 +19,7 @@ export const PaymentModal = ( {
    isVip,
    isPaying,
    remaining,
+   paymentAmount,
    onUpgrade,
 }: PaymentModalProps ) => {
    const { them } = useMainContext()
@@ -46,7 +48,7 @@ export const PaymentModal = ( {
                <Text style={styles.text}>
                   {isVip
                      ? 'Hesabınız VIP-dır, məhdudiyyət yoxdur.'
-                     : `Hazırda ${remaining} mesaj qalıb. Limitsiz istifadə üçün 5 AZN ödəniş edin və yazışmanı davam etdirin.`}
+                     : `Hazırda ${remaining} mesaj qalıb. Limitsiz istifadə üçün ${paymentAmount} AZN ödəniş edin və yazışmanı davam etdirin.`}
                </Text>
                <TouchableOpacity
                   style={[ styles.button, { backgroundColor: Colors[ them ].primary } ]}
@@ -59,7 +61,7 @@ export const PaymentModal = ( {
                   disabled={isVip}
                >
                   <Text style={styles.buttonText}>
-                     {isVip ? 'VIP aktivdir' : isPaying ? 'Gözləyin...' : 'Ödəmək 5 AZN'}
+                     {isVip ? 'VIP aktivdir' : isPaying ? 'Gözləyin...' : `Ödəmək ${paymentAmount} AZN`}
                   </Text>
                   {!isVip && <Ionicons name="arrow-forward" size={16} color="#fff" />}
                </TouchableOpacity>

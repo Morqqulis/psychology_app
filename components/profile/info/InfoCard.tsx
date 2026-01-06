@@ -1,8 +1,11 @@
 import { Loader } from '@/components/reusable'
 import { Colors } from "@/constants/theme"
+import { showToast } from "@/hooks/useToast"
 import { useMainContext } from "@/providers/MainProvider"
 import { useUserContext } from "@/providers/UserProvider"
 import { useChatMeta } from "@/services/chat/chat"
+import { startEpointPayment } from "@/services/payments/epoint"
+import { useSettings } from "@/services/settings/settings"
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons"
 import React, { Fragment, useEffect, useState } from "react"
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native"
@@ -25,22 +28,48 @@ export default function InfoCard( {
    const { them } = useMainContext()
    const { user } = useUserContext()
    const meta = useChatMeta( user?.id )
+   const { data: settings } = useSettings()
    const [ usedLocal, setUsedLocal ] = useState<number | undefined>( undefined )
+   const [ isPaying, setIsPaying ] = useState( false )
 
    const color = Colors[ them ].text
    const invited = user?.invitedCount ?? 0
    const serverUsed = meta.data?.pages?.[ 0 ]?.messageCount ?? user?.totalMessagesUsed ?? 0
    const used = usedLocal ?? serverUsed
+   const freeLimit = settings?.freeMessageLimit ?? 5
    const bonus = Math.floor( invited / 5 ) * 5
-   const maxFree = 5 + bonus
+   const maxFree = freeLimit + bonus
    const remaining = Math.max( 0, maxFree - used )
    const isVip = user?.status === "vip"
+   const paymentAmount = settings?.paymentAmount ?? 5
 
    useEffect( () => {
       if ( typeof serverUsed === "number" ) {
          setUsedLocal( serverUsed )
       }
    }, [ serverUsed ] )
+
+   const handleUpgrade = async () => {
+      if ( isPaying || isVip ) return
+      try {
+         setIsPaying( true )
+         const orderId = `profile-${Date.now()}`
+         await startEpointPayment( {
+            amount: paymentAmount,
+            orderId,
+            description: "AI limitsiz istifadə üçün ödəniş",
+         } )
+      } catch ( error ) {
+         console.error( error )
+         showToast( {
+            title: "Ödəniş",
+            message: "Ödəniş baş tutmadı, yenidən cəhd edin",
+            type: "error",
+         } )
+      } finally {
+         setIsPaying( false )
+      }
+   }
 
    if ( !user ) return <Fragment />
 
@@ -115,6 +144,28 @@ export default function InfoCard( {
                </View>
             </View>
          </View>
+
+         {!isVip && (
+            <TouchableOpacity
+               style={[
+                  styles.upgradeButton,
+                  { backgroundColor: Colors[ them ].primary },
+               ]}
+               onPress={handleUpgrade}
+               disabled={isPaying}
+            >
+               {isPaying ? (
+                  <Loader color="white" size={18} />
+               ) : (
+                  <Fragment>
+                     <Ionicons name="diamond" size={18} color="#fff" />
+                     <Text style={styles.upgradeButtonText}>
+                        VIP ol - {paymentAmount} AZN
+                     </Text>
+                  </Fragment>
+               )}
+            </TouchableOpacity>
+         )}
 
          <View style={styles.actionButtons}>
             {type === "view" ? (
@@ -279,5 +330,19 @@ const styles = StyleSheet.create( {
    cancelButtonText: {
       fontSize: 16,
       fontWeight: "600",
+   },
+   upgradeButton: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 8,
+      paddingVertical: 14,
+      borderRadius: 12,
+      marginTop: 16,
+   },
+   upgradeButtonText: {
+      color: "#fff",
+      fontSize: 15,
+      fontWeight: "700",
    },
 } )
