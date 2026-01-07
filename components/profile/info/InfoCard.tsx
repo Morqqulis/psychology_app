@@ -8,7 +8,7 @@ import { startEpointPayment } from "@/services/payments/epoint"
 import { useSettings } from "@/services/settings/settings"
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons"
 import React, { Fragment, useEffect, useState } from "react"
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native"
+import { Share, StyleSheet, Text, TouchableOpacity, View } from "react-native"
 
 interface IInfoCardProps {
    handleCancel: () => void
@@ -68,6 +68,18 @@ export default function InfoCard( {
          } )
       } finally {
          setIsPaying( false )
+      }
+   }
+
+   const handleInvite = async () => {
+      if ( !user?.referralCode ) return
+      const appLink = `https://psychology-eosin.vercel.app/ref/${user.referralCode}`
+      try {
+         await Share.share( {
+            message: `Nur Yolu - Psixoloji dəstək tətbiqi! Mənim dəvət kodumla qoşul və biz hər ikimiz bonus mesajlar qazanaq: ${appLink}`,
+         } )
+      } catch ( error ) {
+         console.error( error )
       }
    }
 
@@ -166,6 +178,19 @@ export default function InfoCard( {
                )}
             </TouchableOpacity>
          )}
+
+         <TouchableOpacity
+            style={[
+               styles.inviteButton,
+               { backgroundColor: Colors[ them ].blue + '22', borderColor: Colors[ them ].blue },
+            ]}
+            onPress={handleInvite}
+         >
+            <Ionicons name="share-social" size={18} color={Colors[ them ].blue} />
+            <Text style={[ styles.inviteButtonText, { color: Colors[ them ].blue } ]}>
+               Dostlarını dəvət et
+            </Text>
+         </TouchableOpacity>
 
          <View style={styles.actionButtons}>
             {type === "view" ? (
@@ -344,5 +369,19 @@ const styles = StyleSheet.create( {
       color: "#fff",
       fontSize: 15,
       fontWeight: "700",
+   },
+   inviteButton: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 8,
+      paddingVertical: 14,
+      borderRadius: 12,
+      marginTop: 12,
+      borderWidth: 1,
+   },
+   inviteButtonText: {
+      fontSize: 15,
+      fontWeight: "600",
    },
 } )
