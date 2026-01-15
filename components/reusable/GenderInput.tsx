@@ -2,13 +2,13 @@ import { Colors } from '@/constants/theme'
 import { useMainContext } from '@/providers/MainProvider'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useState } from 'react'
-import { Control, Controller } from 'react-hook-form'
+import { Control, Controller, FieldValues, Path } from 'react-hook-form'
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import SlideModal from './SlideModal'
 
-interface GenderInputProps {
-   control: Control<Record<string, string>>
-   name: string
+interface GenderInputProps<T extends FieldValues> {
+   control: Control<T>
+   name: Path<T>
    label?: string
    placeholder: string
    variant?: 'default' | 'primary'
@@ -24,13 +24,13 @@ const genderMap: Record<string, string> = {
    female: 'Qadın',
 }
 
-export default function GenderInput( {
+export default function GenderInput<T extends FieldValues>( {
    control,
    name,
    placeholder,
    label,
    variant = 'default',
-}: GenderInputProps ) {
+}: GenderInputProps<T> ) {
    const [ modalVisible, setModalVisible ] = useState( false )
    const { them } = useMainContext()
    const closeModal = () => setModalVisible( false )
@@ -50,7 +50,6 @@ export default function GenderInput( {
       <Controller
          control={control}
          name={name}
-         defaultValue=""
          render={( { field: { onChange, value }, fieldState: { error } } ) => (
             <View style={styles.container}>
                {label && <Text style={[ styles.label, { color } ]}>{label}</Text>}

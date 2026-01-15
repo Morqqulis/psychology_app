@@ -49,7 +49,7 @@ export default function RegisterScreen() {
             } )
             router.replace( "/auth/login" )
          },
-         onError: ( error: any ) => {
+         onError: ( error: Error ) => {
             console.log( "Register error: ", error )
             showToast( {
                title: "Xəta",
