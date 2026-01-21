@@ -52,7 +52,7 @@ export default function GenderInput<T extends FieldValues>( {
          name={name}
          render={( { field: { onChange, value }, fieldState: { error } } ) => (
             <View style={styles.container}>
-               {label && <Text style={[ styles.label, { color } ]}>{label}</Text>}
+               {label && <Text style={[ styles.label, { color: '#fff' } ]}>{label}</Text>}
                <TouchableOpacity
                   onPress={() => setModalVisible( !modalVisible )}
                   style={[

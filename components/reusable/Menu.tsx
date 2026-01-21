@@ -2,6 +2,7 @@ import { Colors } from '@/constants/theme'
 import { removeCookie } from '@/functions/cookieActions'
 import { useMainContext } from '@/providers/MainProvider'
 import { useUserContext } from '@/providers/UserProvider'
+import { api } from '@/shared/lib/axios'
 import { IProfileLabels, menuItems } from '@/shared/static/menu'
 import { Ionicons } from '@expo/vector-icons'
 import { useQueryClient } from '@tanstack/react-query'
@@ -35,9 +36,12 @@ export default function Menu( { setSelectedLabel, selectedLabel }: MenuProps ) {
    const color = them === 'dark' ? Colors[ them ].text : Colors[ them ].blue
 
    const logOut = async () => {
+      try {
+         await api.post( '/users/logout' )
+      } catch { }
       await removeCookie( 'token' )
       setUser( undefined )
-      await queryClient.clear()
+      queryClient.clear()
       router.replace( '/auth/login' )
    }
 
