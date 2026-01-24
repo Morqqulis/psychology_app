@@ -1,14 +1,13 @@
 import { AuthFooter, AuthFormContainer, AuthHeader } from '@/components/auth'
 import { Button } from '@/components/ui/button'
 import { InputControlled } from '@/components/ui/input-controlled'
-import { Colors, gradients } from '@/constants/theme'
+import { gradients } from '@/constants/theme'
 import { addCookie } from '@/functions/cookieActions'
 import { showToast } from '@/hooks/useToast'
 import { useMainContext } from '@/providers/MainProvider'
 import { useUserContext } from '@/providers/UserProvider'
 import { useLogin } from '@/services/auth/auth'
 import { LoginFormData, loginSchema } from '@/shared/schemas/auth'
-import { Ionicons } from '@expo/vector-icons'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { LinearGradient } from 'expo-linear-gradient'
 import { router } from 'expo-router'
@@ -18,9 +17,7 @@ import {
    KeyboardAvoidingView,
    Platform,
    ScrollView,
-   StyleSheet,
-   Text,
-   View,
+   StyleSheet
 } from 'react-native'
 
 export default function LoginScreen() {
@@ -111,21 +108,6 @@ export default function LoginScreen() {
                      style={styles.loginButton}
                   />
 
-                  <View style={styles.divider}>
-                     <View style={styles.dividerLine} />
-                     <Text style={[ styles.dividerText, { color: Colors[ them ].text } ]}>
-                        və ya
-                     </Text>
-                     <View style={styles.dividerLine} />
-                  </View>
-
-                  <Button
-                     title="Google ilə daxil ol"
-                     variant="outline"
-                     leftIcon={<Ionicons name="logo-google" size={20} color="#667eea" />}
-                     style={styles.socialButton}
-                  />
-
                   <AuthFooter
                      text="Hesabınız yoxdur?"
                      linkText="Qeydiyyatdan keç"
@@ -153,27 +135,5 @@ const styles = StyleSheet.create( {
    },
    loginButton: {
       marginTop: 8,
-   },
-   divider: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      marginVertical: 24,
-   },
-   dividerLine: {
-      flex: 1,
-      height: 1,
-      backgroundColor: '#ECEDEE',
-   },
-   dividerText: {
-      marginHorizontal: 16,
-      fontSize: 14,
-   },
-   socialButton: {
-      marginBottom: 24,
-      alignItems: 'center',
-      flexDirection: 'row',
-      justifyContent: 'center',
-      borderColor: '#fff',
-      borderWidth: 0.5,
    },
 } )

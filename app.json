@@ -10,10 +10,13 @@
 		"newArchEnabled": true,
 		"ios": {
 			"icon": "./assets/images/logo.png",
-			"supportsTablet": true
+			"supportsTablet": true,
+			"bundleIdentifier": "com.nuryolu.app",
+			"associatedDomains": ["applinks:psychology-eosin.vercel.app", "webcredentials:psychology-eosin.vercel.app"]
 		},
 		"android": {
 			"icon": "./assets/images/logo.png",
+			"package": "com.nuryolu.app",
 			"adaptiveIcon": {
 				"backgroundColor": "#E6F4FE",
 				"foregroundImage": "./assets/images/logo.png",
@@ -21,7 +24,26 @@
 				"monochromeImage": "./assets/images/android-icon-monochrome.png"
 			},
 			"edgeToEdgeEnabled": true,
-			"predictiveBackGestureEnabled": false
+			"predictiveBackGestureEnabled": false,
+			"intentFilters": [
+				{
+					"action": "VIEW",
+					"autoVerify": true,
+					"data": [
+						{
+							"scheme": "https",
+							"host": "psychology-eosin.vercel.app",
+							"pathPrefix": "/ref"
+						},
+						{
+							"scheme": "https",
+							"host": "psychology-eosin.vercel.app",
+							"pathPrefix": "/pay"
+						}
+					],
+					"category": ["BROWSABLE", "DEFAULT"]
+				}
+			]
 		},
 		"web": {
 			"bundler": "metro",

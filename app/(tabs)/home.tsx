@@ -2,11 +2,11 @@ import {
    ChatHeader,
    ChatInput,
    ChatMessage,
-   PaymentBanner,
-   PaymentModal,
+   LimitMessage,
    ScrollToBottomButton,
    TypingIndicator,
 } from '@/components/home'
+import { ChatSkeleton } from '@/components/ui/skeleton'
 import { Colors } from '@/constants/theme'
 import { showToast } from '@/hooks/useToast'
 import { useMainContext } from '@/providers/MainProvider'
@@ -15,7 +15,7 @@ import { useChatHistory, useChatMeta, useSendMessage } from '@/services/chat/cha
 import { startEpointPayment } from '@/services/payments/epoint'
 import { useSettings } from '@/services/settings/settings'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { FlatList, StyleSheet, View } from 'react-native'
+import { FlatList, KeyboardAvoidingView, Platform, RefreshControl, StyleSheet, View } from 'react-native'
 
 interface Message {
    id: string
@@ -40,14 +40,12 @@ export default function ChatScreen() {
    const [ isTyping, setIsTyping ] = useState( false )
    const [ isAtBottom, setIsAtBottom ] = useState( true )
    const [ isPaying, setIsPaying ] = useState( false )
-   const [ bannerVisible, setBannerVisible ] = useState( true )
-   const [ modalVisible, setModalVisible ] = useState( false )
    const flatListRef = useRef<FlatList<Message>>( null )
 
    const profile = useProfile()
    const { data: settings } = useSettings()
    const userId = profile.data?.user.id
-   const { data: chatHistory, isLoading: historyLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useChatHistory( userId )
+   const { data: chatHistory, isLoading: historyLoading, fetchNextPage, hasNextPage, isFetchingNextPage, refetch: refetchHistory } = useChatHistory( userId )
    const { data: chatMeta, refetch: refetchChatMeta } = useChatMeta( userId )
    const sendMessage = useSendMessage( userId )
    const user = profile.data?.user
@@ -257,26 +255,21 @@ export default function ChatScreen() {
       return (
          <View style={[ styles.container, { backgroundColor: Colors[ them ].background } ]}>
             <ChatHeader />
-            <View style={styles.loadingContainer}>
-               <TypingIndicator />
-            </View>
+            <ChatSkeleton />
             <ChatInput onSendMessage={handleSendMessage} disabled={true} />
          </View>
       )
    }
 
    return (
-      <View
+      <KeyboardAvoidingView
          style={[ styles.container, { backgroundColor: Colors[ them ].background } ]}
+         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
       >
          <ChatHeader />
 
          <View style={{ flex: 1 }}>
-            <PaymentBanner
-               visible={bannerVisible && !isVip}
-               onPress={() => setModalVisible( true )}
-               onClose={() => setBannerVisible( false )}
-            />
             <FlatList
                ref={flatListRef}
                data={localMessages}
@@ -299,6 +292,16 @@ export default function ChatScreen() {
                contentContainerStyle={styles.messagesContainer}
                showsVerticalScrollIndicator={false}
                keyboardShouldPersistTaps="handled"
+               refreshControl={
+                  <RefreshControl
+                     refreshing={false}
+                     onRefresh={() => {
+                        refetchHistory()
+                        refetchChatMeta()
+                     }}
+                     tintColor={Colors[ them ].primary}
+                  />
+               }
             />
             <ScrollToBottomButton
                visible={!isAtBottom}
@@ -311,18 +314,16 @@ export default function ChatScreen() {
             />
          </View>
 
-         <ChatInput onSendMessage={handleSendMessage} disabled={isTyping || sendMessage.isPending} />
+         <ChatInput onSendMessage={handleSendMessage} disabled={isTyping || sendMessage.isPending || ( remaining === 0 && !isVip )} />
 
-         <PaymentModal
-            visible={modalVisible}
-            onClose={() => setModalVisible( false )}
-            isVip={isVip}
-            isPaying={isPaying}
-            remaining={remaining}
-            paymentAmount={settings?.paymentAmount ?? 5}
-            onUpgrade={handleUpgrade}
-         />
-      </View>
+         {remaining === 0 && !isVip && (
+            <LimitMessage
+               onUpgrade={handleUpgrade}
+               isPaying={isPaying}
+               paymentAmount={settings?.paymentAmount ?? 5}
+            />
+         )}
+      </KeyboardAvoidingView>
    )
 }
 
