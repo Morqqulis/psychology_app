@@ -5,7 +5,7 @@ import { InputControlled } from '@/components/ui/input-controlled'
 import { Colors, gradients } from '@/constants/theme'
 import { showToast } from '@/hooks/useToast'
 import { useMainContext } from '@/providers/MainProvider'
-import { useRegister } from '@/services/auth/auth'
+import { getAuthErrorMessage, useRegister } from '@/services/auth/auth'
 import { RegisterFormData, registerSchema } from '@/shared/schemas/auth'
 import { zodResolver } from '@hookform/resolvers/zod'
 import AsyncStorage from '@react-native-async-storage/async-storage'
@@ -14,11 +14,10 @@ import { router } from 'expo-router'
 import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import {
-   KeyboardAvoidingView,
-   Platform,
    ScrollView,
    StyleSheet,
    Text,
+   View
 } from 'react-native'
 
 export default function RegisterScreen() {
@@ -35,6 +34,7 @@ export default function RegisterScreen() {
          confirmPassword: undefined,
          gender: undefined,
       },
+      shouldFocusError: false,
    } )
 
    const registerMutation = useRegister()
@@ -49,11 +49,10 @@ export default function RegisterScreen() {
             } )
             router.replace( "/auth/login" )
          },
-         onError: ( error: Error ) => {
-            console.log( "Register error: ", error )
+         onError: ( error ) => {
             showToast( {
                title: "Xəta",
-               message: "Hesab yaratmaqda xəta oldu",
+               message: getAuthErrorMessage( error ),
                type: "error",
             } )
          },
@@ -69,10 +68,7 @@ export default function RegisterScreen() {
    }, [] )
 
    return (
-      <KeyboardAvoidingView
-         style={styles.container}
-         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      >
+      <View style={styles.container}>
          <LinearGradient colors={gradients[ them ].splash} style={styles.gradient}>
             <ScrollView
                contentContainerStyle={styles.scrollContent}
@@ -158,7 +154,7 @@ export default function RegisterScreen() {
                </AuthFormContainer>
             </ScrollView>
          </LinearGradient>
-      </KeyboardAvoidingView>
+      </View>
    )
 }
 
@@ -171,8 +167,8 @@ const styles = StyleSheet.create( {
    },
    scrollContent: {
       flexGrow: 1,
-      justifyContent: 'center',
       paddingVertical: 50,
+      paddingTop: 80,
       padding: 10,
    },
    passwordHint: {

@@ -1,6 +1,9 @@
 import { Ionicons } from '@expo/vector-icons'
-import { StyleSheet } from 'react-native'
+import { useRef } from 'react'
+import { StyleSheet, Text, View } from 'react-native'
 import * as Animatable from 'react-native-animatable'
+
+
 
 interface AuthHeaderProps {
    icon: keyof typeof Ionicons.glyphMap
@@ -9,12 +12,12 @@ interface AuthHeaderProps {
 }
 
 export const AuthHeader = ( { icon, title, subtitle }: AuthHeaderProps ) => {
+   const hasAnimated = useRef( false )
+   const shouldAnimate = !hasAnimated.current
+   if ( !hasAnimated.current ) hasAnimated.current = true
+
    return (
-      <Animatable.View
-         animation="fadeInUp"
-         duration={800}
-         style={styles.headerContainer}
-      >
+      <View style={styles.headerContainer}>
          <Animatable.View
             animation="pulse"
             iterationCount="infinite"
@@ -24,15 +27,24 @@ export const AuthHeader = ( { icon, title, subtitle }: AuthHeaderProps ) => {
          >
             <Ionicons name={icon} size={70} color="#fff" />
          </Animatable.View>
-         <Animatable.Text animation="fadeIn" delay={300} style={styles.title}>
-            {title}
-         </Animatable.Text>
-         {subtitle && (
-            <Animatable.Text animation="fadeIn" delay={500} style={styles.subtitle}>
-               {subtitle}
-            </Animatable.Text>
+         {shouldAnimate ? (
+            <>
+               <Animatable.Text animation="fadeIn" delay={300} duration={600} style={styles.title}>
+                  {title}
+               </Animatable.Text>
+               {subtitle && (
+                  <Animatable.Text animation="fadeIn" delay={500} duration={600} style={styles.subtitle}>
+                     {subtitle}
+                  </Animatable.Text>
+               )}
+            </>
+         ) : (
+            <>
+               <Text style={styles.title}>{title}</Text>
+               {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
+            </>
          )}
-      </Animatable.View>
+      </View>
    )
 }
 

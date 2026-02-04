@@ -50,7 +50,7 @@ export function ChatInput( { onSendMessage, disabled }: ChatInputProps ) {
 
       const showSub = Keyboard.addListener( showEvent, ( e ) => {
          Animated.timing( translateY, {
-            toValue: Platform.OS === 'ios' ? -e.endCoordinates.height + 95 : 0,
+            toValue: -e.endCoordinates.height + ( Platform.OS === 'ios' ? 95 : 60 ),
             duration: 250,
             useNativeDriver: true,
             easing: Easing.out( Easing.ease ),

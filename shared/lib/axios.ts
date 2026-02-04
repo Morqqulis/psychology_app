@@ -42,7 +42,8 @@ api.interceptors.request.use( async ( config ) => {
 api.interceptors.response.use(
    ( response ) => response,
    async ( error ) => {
-      if ( error.response?.status === 401 ) {
+      // Don't handle 401 for login endpoint to prevent loop/reload
+      if ( error.response?.status === 401 && !error.config?.url?.includes( "/users/login" ) ) {
          await handle401()
       }
       return Promise.reject( error )

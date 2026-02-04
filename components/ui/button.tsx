@@ -8,6 +8,7 @@ import {
    Animated,
    GestureResponderEvent,
    Pressable,
+   StyleProp,
    StyleSheet,
    Text,
    ViewStyle,
@@ -21,7 +22,7 @@ interface ButtonProps {
    leftIcon?: React.ReactNode
    rightIcon?: React.ReactNode
    disabled?: boolean
-   style?: ViewStyle
+   style?: StyleProp<ViewStyle>
    onPress?: ( event: GestureResponderEvent ) => void
    haptic?: 'light' | 'medium' | 'heavy' | 'none'
 }

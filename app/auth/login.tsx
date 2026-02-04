@@ -6,7 +6,7 @@ import { addCookie } from '@/functions/cookieActions'
 import { showToast } from '@/hooks/useToast'
 import { useMainContext } from '@/providers/MainProvider'
 import { useUserContext } from '@/providers/UserProvider'
-import { useLogin } from '@/services/auth/auth'
+import { getAuthErrorMessage, useLogin } from '@/services/auth/auth'
 import { LoginFormData, loginSchema } from '@/shared/schemas/auth'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { LinearGradient } from 'expo-linear-gradient'
@@ -14,10 +14,9 @@ import { router } from 'expo-router'
 import React from 'react'
 import { useForm } from 'react-hook-form'
 import {
-   KeyboardAvoidingView,
-   Platform,
    ScrollView,
-   StyleSheet
+   StyleSheet,
+   View
 } from 'react-native'
 
 export default function LoginScreen() {
@@ -28,28 +27,18 @@ export default function LoginScreen() {
       defaultValues: {
          email: "test@test.test",
          password: "Salam123",
-         // email: undefined,
-         // password: undefined,
       },
+      shouldFocusError: false,
    } )
 
    const loginMutation = useLogin()
 
    const onSubmit = ( data: LoginFormData ) => {
+
       loginMutation.mutate( data, {
          onSuccess: async ( data ) => {
-            const { token, user } = data
-            await addCookie( "token", token )
-            setUser( {
-               id: user.id,
-               name: user.name,
-               role: user.role,
-               surname: user.surname,
-               gender: user.gender,
-               updatedAt: user.updatedAt,
-               createdAt: user.createdAt,
-               email: user.email,
-            } )
+            await addCookie( "token", data.token )
+            setUser( data.user )
             showToast( {
                title: "Uğurlu",
                message: "Hesaba uğurla daxil oldunuz!",
@@ -57,23 +46,20 @@ export default function LoginScreen() {
             } )
             router.replace( "/(tabs)/home" )
          },
-         onError: ( error: any ) => {
-            console.log( "Login error: ", error )
-
+         onError: ( error ) => {
             showToast( {
                title: "Xəta",
-               message: "Email və ya parol yanlışdır",
+               message: getAuthErrorMessage( error ),
                type: "error",
             } )
          },
       } )
+
+
    }
 
    return (
-      <KeyboardAvoidingView
-         style={styles.container}
-         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      >
+      <View style={styles.container}>
          <LinearGradient colors={gradients[ them ].splash} style={styles.gradient}>
             <ScrollView
                contentContainerStyle={styles.scrollContent}
@@ -117,7 +103,7 @@ export default function LoginScreen() {
                </AuthFormContainer>
             </ScrollView>
          </LinearGradient>
-      </KeyboardAvoidingView>
+      </View>
    )
 }
 
@@ -130,9 +116,9 @@ const styles = StyleSheet.create( {
    },
    scrollContent: {
       flexGrow: 1,
-      justifyContent: 'center',
       padding: 20,
-      paddingVertical: 50,
+      paddingTop: 80,
+      paddingBottom: 40,
    },
    loginButton: {
       marginTop: 8,

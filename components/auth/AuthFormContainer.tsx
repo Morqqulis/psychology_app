@@ -1,7 +1,7 @@
 import { gradients } from '@/constants/theme'
 import { useMainContext } from '@/providers/MainProvider'
 import { LinearGradient } from 'expo-linear-gradient'
-import { ReactNode } from 'react'
+import { ReactNode, useRef } from 'react'
 import { StyleSheet } from 'react-native'
 import * as Animatable from 'react-native-animatable'
 
@@ -12,16 +12,20 @@ interface AuthFormContainerProps {
 
 export const AuthFormContainer = ( { children, delay = 300 }: AuthFormContainerProps ) => {
    const { them } = useMainContext()
+   const hasAnimated = useRef( false )
+
+   const animation = hasAnimated.current ? undefined : 'fadeInUp'
+   if ( !hasAnimated.current ) hasAnimated.current = true
 
    return (
-      <Animatable.View animation="fadeInUp" delay={delay} duration={1000}>
+      <Animatable.View animation={animation} delay={delay} duration={800} useNativeDriver>
          <LinearGradient
             colors={gradients[ them ].glass}
             style={styles.formContainer}
          >
             {children}
          </LinearGradient>
-      </Animatable.View>
+      </Animatable.View >
    )
 }
 

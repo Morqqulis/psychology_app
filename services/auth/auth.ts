@@ -1,3 +1,4 @@
+import { addCookie } from "@/functions/cookieActions"
 import type {
    AuthResponse,
    LoginRequest,
@@ -29,35 +30,35 @@ export const authApi = {
    },
 }
 
-const getErrorMessage = ( error: any ): string => {
-   if ( error?.response?.data?.message ) {
-      return error.response.data.message
+export const getAuthErrorMessage = ( error: unknown ): string => {
+   const err = error as { response?: { data?: { message?: string }; status?: number } }
+   if ( err?.response?.data?.message ) {
+      return err.response.data.message
    }
-   if ( error?.response?.status === 400 ) {
+   if ( err?.response?.status === 400 ) {
       return "Yanlış məlumatlar daxil edilib"
    }
-   if ( error?.response?.status === 401 ) {
+   if ( err?.response?.status === 401 ) {
       return "Email və ya parol yanlışdır"
    }
-   if ( error?.response?.status === 409 ) {
+   if ( err?.response?.status === 409 ) {
       return "Bu email artıq istifadə olunur"
    }
-   if ( error?.response?.status >= 500 ) {
+   if ( err?.response?.status && err.response.status >= 500 ) {
       return "Server xətası baş verdi"
    }
    return "Xəta baş verdi"
 }
 
+
 export const useLogin = () => {
    const queryClient = useQueryClient()
    return useMutation( {
       mutationFn: authApi.login,
-      onSuccess: () => {
+      onSuccess: async ( data ) => {
+         await addCookie( "token", data.token )
          queryClient.removeQueries( { queryKey: [ "profile" ] } )
          queryClient.removeQueries( { queryKey: [ "chat" ] } )
-      },
-      onError: ( error ) => {
-         throw new Error( getErrorMessage( error ) )
       },
    } )
 }
@@ -65,9 +66,6 @@ export const useLogin = () => {
 export const useRegister = () => {
    return useMutation( {
       mutationFn: authApi.register,
-      onError: ( error ) => {
-         throw new Error( getErrorMessage( error ) )
-      },
    } )
 }
 

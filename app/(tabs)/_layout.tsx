@@ -52,7 +52,7 @@ export default function TabLayout() {
                      <Ionicons name="home" size={28} color={color} />
                   ),
                   ...defaultOptions,
-
+                  animation: 'fade',
                }}
             />
             <Tabs.Screen
@@ -63,6 +63,8 @@ export default function TabLayout() {
                      <Ionicons name="person" size={28} color={color} />
                   ),
                   ...defaultOptions,
+                  animation: 'fade',
+
                }}
             />
          </Tabs>

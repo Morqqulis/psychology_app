@@ -31,11 +31,11 @@ interface Message {
 
 export default function ChatScreen() {
    const { them } = useMainContext()
-   const [ localMessages, setLocalMessages ] = useState<Message[]>( [] )
    const [ isTyping, setIsTyping ] = useState( false )
    const [ isAtBottom, setIsAtBottom ] = useState( true )
    const [ isPaying, setIsPaying ] = useState( false )
-   const flashListRef = useRef<any>( null )
+   const flashListRef = useRef<React.ElementRef<typeof FlashList<Message>>>( null )
+   const prevMessagesLengthRef = useRef( 0 )
 
    const profile = useProfile()
    const { data: settings } = useSettings()
@@ -57,7 +57,6 @@ export default function ChatScreen() {
    const isReady = !profile.isLoading && !!userId
 
    useEffect( () => {
-      setLocalMessages( [] )
       setIsAtBottom( true )
       flashListRef.current?.scrollToOffset( { animated: false, offset: 0 } )
       setUsedLocal( undefined )
@@ -69,103 +68,65 @@ export default function ChatScreen() {
       }
    }, [ serverUsed ] )
 
-   const processedMessages = useMemo( () => {
-      if ( chatHistory?.pages ) {
-         const allMessages = chatHistory.pages.flatMap( page =>
-            page.messages.map( ( msg: ServiceChatMessage ) => ( {
-               id: msg.id.toString(),
-               text: msg.message,
-               isUser: msg.role === 'customer',
-               type: msg.type,
-               timestamp: new Date( msg.createdAt ),
-               audioUri: undefined, // Will be set from local messages if available
-            } ) )
-         )
+   const messages = useMemo( (): Message[] => {
+      if ( !chatHistory?.pages ) return []
 
-         if ( allMessages.length === 0 && !historyLoading ) {
-            // Welcome message only if no history
-            const welcomeMessage: Message = {
-               id: "welcome",
-               text: "Salam! Mən Nur Yolu assistentiyəm. Sizə necə kömək edə bilərəm? İstədiyiniz hər şeyi mənə soruşa bilərsiniz.",
-               isUser: false,
-               type: "text",
-               timestamp: new Date(),
-            }
-            return [ welcomeMessage ]
-         }
-         return allMessages
+      const allMessages = chatHistory.pages.flatMap( page =>
+         page.messages.map( ( msg: ServiceChatMessage ) => ( {
+            id: msg.id.toString(),
+            text: msg.message,
+            isUser: msg.role === 'customer',
+            type: msg.type,
+            timestamp: new Date( msg.createdAt ),
+            audioUri: undefined,
+         } ) )
+      )
+
+      if ( allMessages.length === 0 && !historyLoading ) {
+         return [ {
+            id: "welcome",
+            text: "Salam! Mən Nur Yolu assistentiyəm. Sizə necə kömək edə bilərəm? İstədiyiniz hər şeyi mənə soruşa bilərsiniz.",
+            isUser: false,
+            type: "text",
+            timestamp: new Date(),
+         } ]
       }
-      return []
+
+      return allMessages
    }, [ chatHistory, historyLoading ] )
 
    useEffect( () => {
-      // Only run when processedMessages actually changes
-      const wasAtBottom = isAtBottom
+      const currentLength = messages.length
+      const prevLength = prevMessagesLengthRef.current
+      prevMessagesLengthRef.current = currentLength
 
-      // Store current length before merging
-      const currentLength = localMessages.length
-
-      // Merge processed messages with local messages, preserving audioUri for voice messages
-      const mergedMessages = processedMessages.map( processedMsg => {
-         // Find local version that might have audioUri
-         const localVersion = localMessages.find( localMsg => localMsg.id === processedMsg.id )
-         if ( localVersion && localVersion.audioUri && processedMsg.type === 'voice' ) {
-            // Preserve audioUri from local version for voice messages
-            return { ...processedMsg, audioUri: localVersion.audioUri }
-         }
-         return processedMsg
-      } )
-
-      // Add any local messages that aren't in processed messages (newly sent, not yet saved)
-      const newLocalMessages = localMessages.filter( localMsg =>
-         !mergedMessages.some( mergedMsg => mergedMsg.id === localMsg.id )
-      )
-
-      const finalMessages = [ ...mergedMessages, ...newLocalMessages ]
-      setLocalMessages( finalMessages )
-
-      // If user was at bottom and new messages arrived, keep them at bottom
-      if ( wasAtBottom && finalMessages.length > currentLength ) {
+      if ( currentLength > prevLength && isAtBottom ) {
          setTimeout( () => {
-            flashListRef.current?.scrollToEnd( { animated: false } )
-         }, 100 )
+            flashListRef.current?.scrollToEnd( { animated: currentLength - prevLength === 1 } )
+         }, 50 )
       }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-   }, [ processedMessages, isAtBottom ] ) // Only depend on processedMessages and isAtBottom
+   }, [ messages.length, isAtBottom ] )
 
-   // Initial scroll when component mounts with messages
    useEffect( () => {
-      if ( processedMessages.length > 0 && !historyLoading ) {
-         // Use a longer timeout to ensure FlatList is fully rendered
+      if ( messages.length > 0 && !historyLoading ) {
          setTimeout( () => {
             flashListRef.current?.scrollToEnd( { animated: false } )
-            setIsAtBottom( true ) // Assume user is at bottom initially
+            setIsAtBottom( true )
          }, 300 )
       }
-   }, [ processedMessages.length, historyLoading ] )
-
-   // Scroll to bottom for newly sent messages (only if user is at bottom)
-   useEffect( () => {
-      if ( localMessages.length > 0 && !historyLoading && isAtBottom ) {
-         // Check if the last message is new (within last 3 seconds)
-         const lastMessage = localMessages[ localMessages.length - 1 ]
-         if ( lastMessage && lastMessage.timestamp.getTime() > Date.now() - 3000 ) {
-            setTimeout( () => {
-               flashListRef.current?.scrollToEnd( { animated: true } )
-            }, 100 )
-         }
-      }
-   }, [ localMessages, historyLoading, isAtBottom ] )
+   }, [ messages.length, historyLoading ] )
 
    const handleSendMessage = async ( text: string ) => {
       if ( !text?.trim() ) return
 
+      setIsTyping( true )
+      setUsedLocal( prev => ( prev ?? serverUsed ) + 1 )
+
       try {
-         setIsTyping( true )
          await sendMessage.mutateAsync( { message: text } )
-         setUsedLocal( prev => ( prev ?? serverUsed ) + 1 )
          refetchChatMeta().catch( () => { } )
-      } catch ( error: any ) {
+      } catch {
+         setUsedLocal( prev => Math.max( 0, ( prev ?? serverUsed ) - 1 ) )
          showToast( {
             title: "Xəta",
             message: "Mesaj göndərilərkən xəta baş verdi. İnternet bağlantınızı yoxlayın",
@@ -178,9 +139,9 @@ export default function ChatScreen() {
 
    const renderMessage = useCallback(
       ( { item, index }: { item: Message; index: number } ) => (
-         <ChatMessage message={item} isNew={index === localMessages.length - 1} />
+         <ChatMessage message={item} isNew={index === messages.length - 1} />
       ),
-      [ localMessages.length ]
+      [ messages.length ]
    )
 
    // Temporarily remove getItemLayout to see if it's causing scrolling issues
@@ -245,7 +206,7 @@ export default function ChatScreen() {
          <View style={{ flex: 1 }}>
             <FlashList
                ref={flashListRef}
-               data={localMessages}
+               data={messages}
                renderItem={renderMessage}
                keyExtractor={( item ) => item.id}
                // @ts-ignore

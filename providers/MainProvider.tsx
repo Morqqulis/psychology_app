@@ -89,7 +89,6 @@ export const MainProvider = ( { children }: { children: React.ReactNode } ) => {
          <ThemeProvider value={isDark ? DarkTheme : DefaultTheme}>
             <UserProvider>
                {children}
-               <Toast />
                <BadgeToast />
                <StatusBar style="auto" />
             </UserProvider>

@@ -139,15 +139,31 @@ export const useSendMessage = ( userId?: string | number ) => {
             createdAt: new Date().toISOString(),
          }
 
-         queryClient.setQueryData<{ pages: { messages: ChatMessage[] }[] }>(
+         queryClient.setQueryData<{ pages: { messages: ChatMessage[], chatId: string, hasMore: boolean, page: number, limit: number }[], pageParams: number[] }>(
             [ 'chat', 'history', userId ],
             ( old ) => {
-               if ( !old?.pages?.length ) return old
-               const newPages = [ ...old.pages ]
-               newPages[ 0 ] = {
-                  ...newPages[ 0 ],
-                  messages: [ ...newPages[ 0 ].messages, optimisticMessage ],
+               if ( !old || !old.pages || !old.pages.length ) {
+                  return {
+                     pages: [ {
+                        chatId: 'temp-id',
+                        messages: [ optimisticMessage ],
+                        hasMore: false,
+                        page: 1,
+                        limit: 20
+                     } ],
+                     pageParams: [ 1 ]
+                  } as any
                }
+
+               const newPages = [ ...old.pages ]
+               const lastPageIndex = newPages.length - 1
+               const lastPage = newPages[ lastPageIndex ]
+
+               newPages[ lastPageIndex ] = {
+                  ...lastPage,
+                  messages: [ ...lastPage.messages, optimisticMessage ],
+               }
+
                return { ...old, pages: newPages }
             }
          )
@@ -170,9 +186,12 @@ export const useSendMessage = ( userId?: string | number ) => {
                ( old ) => {
                   if ( !old?.pages?.length ) return old
                   const newPages = [ ...old.pages ]
-                  newPages[ 0 ] = {
-                     ...newPages[ 0 ],
-                     messages: [ ...newPages[ 0 ].messages, aiMessage ],
+                  const lastPageIndex = newPages.length - 1
+                  const lastPage = newPages[ lastPageIndex ]
+
+                  newPages[ lastPageIndex ] = {
+                     ...lastPage,
+                     messages: [ ...lastPage.messages, aiMessage ],
                   }
                   return { ...old, pages: newPages }
                }

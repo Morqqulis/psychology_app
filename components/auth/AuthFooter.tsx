@@ -26,6 +26,7 @@ export const AuthFooter = ( { text, linkText, linkHref }: AuthFooterProps ) => {
 
 const styles = StyleSheet.create( {
    footer: {
+      marginTop: 16,
       flexDirection: 'row',
       justifyContent: 'center',
       alignItems: 'center',
