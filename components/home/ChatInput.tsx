@@ -14,6 +14,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react"
 import {
    ActivityIndicator,
    Animated,
+   Easing,
    Keyboard,
    Platform,
    StyleSheet,
@@ -49,17 +50,19 @@ export function ChatInput( { onSendMessage, disabled }: ChatInputProps ) {
 
       const showSub = Keyboard.addListener( showEvent, ( e ) => {
          Animated.timing( translateY, {
-            toValue: Platform.OS === 'ios' ? -e.endCoordinates.height + 90 : 0,
-            duration: e.duration || 250,
+            toValue: Platform.OS === 'ios' ? -e.endCoordinates.height + 95 : 0,
+            duration: 250,
             useNativeDriver: true,
+            easing: Easing.out( Easing.ease ),
          } ).start()
       } )
 
       const hideSub = Keyboard.addListener( hideEvent, ( e ) => {
          Animated.timing( translateY, {
             toValue: 0,
-            duration: e.duration || 250,
+            duration: 250,
             useNativeDriver: true,
+            easing: Easing.out( Easing.ease ),
          } ).start()
       } )
 

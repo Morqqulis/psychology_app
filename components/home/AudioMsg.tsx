@@ -18,20 +18,33 @@ interface IAudioMsgProps {
 
 export default function AudioMsg( { message, audioUri }: IAudioMsgProps ) {
    const audioSource = audioUri || message.text
-   const player = useAudioPlayer( audioSource ? { uri: audioSource } : null )
+   const [ isLoaded, setIsLoaded ] = useState( false )
+   const player = useAudioPlayer( isLoaded && audioSource ? { uri: audioSource } : null )
    const status: AudioStatus = useAudioPlayerStatus( player )
-   const [ isLoading, setIsLoading ] = useState( true )
+   const [ isLoading, setIsLoading ] = useState( false )
 
    // Check if audio player is ready
    useEffect( () => {
-      if ( audioSource ) {
+      if ( isLoaded && audioSource ) {
          setIsLoading( true )
          // Wait a bit for the audio player to initialize
          setTimeout( () => setIsLoading( false ), 500 )
       }
-   }, [ audioSource ] )
+   }, [ isLoaded, audioSource ] )
+
+   // Auto-play when loaded
+   useEffect( () => {
+      if ( isLoaded && player && !status.playing && isLoading === false ) {
+         player.play()
+      }
+   }, [ isLoaded, player, isLoading, status.playing ] )
 
    const togglePlayback = useCallback( async () => {
+      if ( !isLoaded ) {
+         setIsLoaded( true )
+         return
+      }
+
       if ( !player ) return
 
       if ( status.playing ) {
@@ -42,7 +55,7 @@ export default function AudioMsg( { message, audioUri }: IAudioMsgProps ) {
          }
          player.play()
       }
-   }, [ player, status.playing, status.currentTime, status.duration ] )
+   }, [ player, status.playing, status.currentTime, status.duration, isLoaded ] )
 
    const onSeek = useCallback( async ( value: number ) => {
       if ( player ) {
@@ -64,13 +77,14 @@ export default function AudioMsg( { message, audioUri }: IAudioMsgProps ) {
    const durationFormatted = useMemo( () =>
       formatMillis( status.duration ), [ status.duration, formatMillis ] )
 
-   const isDisabled = !player || isLoading
+   const isDisabled = ( isLoaded && ( !player || isLoading ) )
+   const iconName = ( isLoaded && status.playing ) ? "pause" : "play"
 
    return (
       <View style={styles.audioContainer}>
          <TouchableOpacity onPress={togglePlayback} disabled={isDisabled}>
             <Ionicons
-               name={status.playing ? "pause" : "play"}
+               name={iconName}
                size={24}
                color={isDisabled ? "rgba(255,255,255,0.3)" : ( message.isUser ? "#fff" : "#000" )}
             />

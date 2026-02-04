@@ -21,6 +21,7 @@ export interface ChatHistoryResponse {
 export interface ChatMetaResponse {
    chatId: string
    messageCount: number
+   summary?: string
 }
 
 export interface ChatResponse {

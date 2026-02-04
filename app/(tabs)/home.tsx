@@ -11,11 +11,12 @@ import { Colors } from '@/constants/theme'
 import { showToast } from '@/hooks/useToast'
 import { useMainContext } from '@/providers/MainProvider'
 import { useProfile } from '@/services/auth/auth'
-import { useChatHistory, useChatMeta, useSendMessage } from '@/services/chat/chat'
+import { ChatMessage as ServiceChatMessage, useChatHistory, useChatMeta, useSendMessage } from '@/services/chat/chat'
 import { startEpointPayment } from '@/services/payments/epoint'
 import { useSettings } from '@/services/settings/settings'
+import { FlashList } from '@shopify/flash-list'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { FlatList, Keyboard, RefreshControl, StyleSheet, View } from 'react-native'
+import { Keyboard, NativeScrollEvent, NativeSyntheticEvent, RefreshControl, StyleSheet, View } from 'react-native'
 
 interface Message {
    id: string
@@ -26,13 +27,7 @@ interface Message {
    audioUri?: string
 }
 
-interface ChatHistoryMessage {
-   id: string | number
-   role: 'customer' | 'ai'
-   message: string
-   type: 'text' | 'voice'
-   createdAt: string
-}
+
 
 export default function ChatScreen() {
    const { them } = useMainContext()
@@ -40,7 +35,7 @@ export default function ChatScreen() {
    const [ isTyping, setIsTyping ] = useState( false )
    const [ isAtBottom, setIsAtBottom ] = useState( true )
    const [ isPaying, setIsPaying ] = useState( false )
-   const flatListRef = useRef<FlatList<Message>>( null )
+   const flashListRef = useRef<any>( null )
 
    const profile = useProfile()
    const { data: settings } = useSettings()
@@ -64,7 +59,7 @@ export default function ChatScreen() {
    useEffect( () => {
       setLocalMessages( [] )
       setIsAtBottom( true )
-      flatListRef.current?.scrollToOffset( { animated: false, offset: 0 } )
+      flashListRef.current?.scrollToOffset( { animated: false, offset: 0 } )
       setUsedLocal( undefined )
    }, [ userId ] )
 
@@ -77,7 +72,7 @@ export default function ChatScreen() {
    const processedMessages = useMemo( () => {
       if ( chatHistory?.pages ) {
          const allMessages = chatHistory.pages.flatMap( page =>
-            page.messages.map( ( msg: ChatHistoryMessage ) => ( {
+            page.messages.map( ( msg: ServiceChatMessage ) => ( {
                id: msg.id.toString(),
                text: msg.message,
                isUser: msg.role === 'customer',
@@ -132,7 +127,7 @@ export default function ChatScreen() {
       // If user was at bottom and new messages arrived, keep them at bottom
       if ( wasAtBottom && finalMessages.length > currentLength ) {
          setTimeout( () => {
-            flatListRef.current?.scrollToEnd( { animated: false } )
+            flashListRef.current?.scrollToEnd( { animated: false } )
          }, 100 )
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -143,7 +138,7 @@ export default function ChatScreen() {
       if ( processedMessages.length > 0 && !historyLoading ) {
          // Use a longer timeout to ensure FlatList is fully rendered
          setTimeout( () => {
-            flatListRef.current?.scrollToEnd( { animated: false } )
+            flashListRef.current?.scrollToEnd( { animated: false } )
             setIsAtBottom( true ) // Assume user is at bottom initially
          }, 300 )
       }
@@ -156,7 +151,7 @@ export default function ChatScreen() {
          const lastMessage = localMessages[ localMessages.length - 1 ]
          if ( lastMessage && lastMessage.timestamp.getTime() > Date.now() - 3000 ) {
             setTimeout( () => {
-               flatListRef.current?.scrollToEnd( { animated: true } )
+               flashListRef.current?.scrollToEnd( { animated: true } )
             }, 100 )
          }
       }
@@ -196,7 +191,7 @@ export default function ChatScreen() {
    //    index,
    // }), [])
 
-   const handleScroll = useCallback( ( event: any ) => {
+   const handleScroll = useCallback( ( event: NativeSyntheticEvent<NativeScrollEvent> ) => {
       const { contentOffset, contentSize, layoutMeasurement } = event.nativeEvent
       // Use a more generous threshold for "at bottom"
       const distanceFromBottom = contentSize.height - contentOffset.y - layoutMeasurement.height
@@ -249,16 +244,13 @@ export default function ChatScreen() {
          <ChatHeader />
 
          <View style={{ flex: 1 }}>
-            <FlatList
-               ref={flatListRef}
+            <FlashList
+               ref={flashListRef}
                data={localMessages}
                renderItem={renderMessage}
                keyExtractor={( item ) => item.id}
-               initialNumToRender={12}
-               maxToRenderPerBatch={8}
-               windowSize={9}
-               removeClippedSubviews
-               updateCellsBatchingPeriod={60}
+               // @ts-ignore
+               estimatedItemSize={100}
                onEndReachedThreshold={0.2}
                ListFooterComponent={renderFooter}
                onScroll={handleScroll}
@@ -286,7 +278,7 @@ export default function ChatScreen() {
             <ScrollToBottomButton
                visible={!isAtBottom}
                onPress={() => {
-                  flatListRef.current?.scrollToOffset( {
+                  flashListRef.current?.scrollToOffset( {
                      offset: 999999,
                      animated: true,
                   } )
