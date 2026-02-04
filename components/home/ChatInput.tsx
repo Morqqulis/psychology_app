@@ -111,10 +111,9 @@ export function ChatInput( { onSendMessage, disabled }: ChatInputProps ) {
          setType( "text" )
          setTimeout( () => inputRef.current?.focus(), 50 )
       } catch ( error: unknown ) {
-         const errorMessage = error instanceof Error ? error.message : 'Səs mesajını oxumaq mümkün olmadı'
          showToast( {
             title: "Xəta",
-            message: errorMessage,
+            message: "Səs mesajını oxumaq mümkün olmadı. Zəhmət olmasa yenidən cəhd edin",
             type: "error",
          } )
          setType( "voice" )

@@ -166,10 +166,9 @@ export default function ChatScreen() {
          setUsedLocal( prev => ( prev ?? serverUsed ) + 1 )
          refetchChatMeta().catch( () => { } )
       } catch ( error: any ) {
-         const errorMessage = error?.message || 'Mesajınızı əldə edə bilmədim. Zəhmət olmasa yenidən cəhd edin'
          showToast( {
             title: "Xəta",
-            message: errorMessage,
+            message: "Mesaj göndərilərkən xəta baş verdi. İnternet bağlantınızı yoxlayın",
             type: "error",
          } )
       } finally {
