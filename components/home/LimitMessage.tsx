@@ -21,7 +21,7 @@ export const LimitMessage = ( { onUpgrade, isPaying, paymentAmount }: LimitMessa
          <Text style={[ styles.title, { color: Colors[ them ].text } ]}>
             Mesaj limitinə çatdınız
          </Text>
-         <Text style={[ styles.description, { color: Colors[ them ].subtext } ]}>
+         <Text style={[ styles.description, { color: Colors[ them ].text } ]}>
             Limitsiz söhbət üçün VIP statusu əldə edin və bütün imkanlardan istifadə edin.
          </Text>
          <View style={styles.buttonWrapper}>

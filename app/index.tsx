@@ -15,7 +15,9 @@ export default function Index() {
    const { user, loading } = useUserContext()
    const { them } = useMainContext()
 
-   if ( user?.id ) return user?.role === 'user' && <Redirect href={'/(tabs)/home'} />
+   if ( !loading && user?.id && user?.role === 'user' ) {
+      return <Redirect href={'/(tabs)/home'} />
+   }
 
    return (
       <LinearGradient colors={gradients[ them ].splash} style={styles.container}>

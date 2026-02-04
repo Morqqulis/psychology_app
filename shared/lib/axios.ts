@@ -1,10 +1,28 @@
-import { getCookie } from "@/functions/cookieActions"
+import { getCookie, removeCookie } from "@/functions/cookieActions"
+import { queryClient } from "@/shared/lib/query-client"
+import AsyncStorage from "@react-native-async-storage/async-storage"
 import axios from "axios"
+import { router } from "expo-router"
 
-// const BASE_URL = 'https://psychology-eosin.vercel.app/api'
-// export const BASE_URL = "http://192.168.1.71:3000/api";
-// export const BASE_URL = "http://192.168.0.183:3000/api"; //iş
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL || "https://psychology-eosin.vercel.app/api"
+
+let isHandling401 = false
+
+const handle401 = async () => {
+   if ( isHandling401 ) return
+   isHandling401 = true
+
+   try {
+      await removeCookie( "token" )
+      await AsyncStorage.removeItem( "nur_yolu_cache" )
+      queryClient.clear()
+      router.replace( "/auth/login" )
+   } finally {
+      setTimeout( () => {
+         isHandling401 = false
+      }, 1000 )
+   }
+}
 
 export const api = axios.create( {
    baseURL: BASE_URL,
@@ -22,15 +40,10 @@ api.interceptors.request.use( async ( config ) => {
 } )
 
 api.interceptors.response.use(
-   ( response ) => {
-      return response
-   },
-   ( error ) => {
+   ( response ) => response,
+   async ( error ) => {
       if ( error.response?.status === 401 ) {
-         console.error( "Unauthorized access" )
-      }
-      if ( error.response?.status >= 500 ) {
-         console.error( "Server error" )
+         await handle401()
       }
       return Promise.reject( error )
    }
@@ -42,6 +55,7 @@ export const uploadApi = axios.create( {
       "Content-Type": "multipart/form-data",
    },
 } )
+
 uploadApi.interceptors.request.use( async ( config ) => {
    const token = await getCookie( "token" )
    if ( token ) {
@@ -51,17 +65,13 @@ uploadApi.interceptors.request.use( async ( config ) => {
 } )
 
 uploadApi.interceptors.response.use(
-   ( response ) => {
-      return response
-   },
-   ( error ) => {
+   ( response ) => response,
+   async ( error ) => {
       if ( error.response?.status === 401 ) {
-         console.error( "Unauthorized access" )
-      }
-      if ( error.response?.status >= 500 ) {
-         console.error( "Server error" )
+         await handle401()
       }
       return Promise.reject( error )
    }
 )
+
 export default api

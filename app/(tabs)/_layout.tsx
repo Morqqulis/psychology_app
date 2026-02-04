@@ -1,10 +1,11 @@
 import { HapticTab } from "@/components/ui/haptic-tab"
 import { Colors } from "@/constants/theme"
 import { useMainContext } from "@/providers/MainProvider"
+import { useUserContext } from "@/providers/UserProvider"
 import { Ionicons } from '@expo/vector-icons'
-import { ScreenProps, Tabs } from "expo-router"
+import { Redirect, ScreenProps, Tabs } from "expo-router"
+import { StatusBar } from "expo-status-bar"
 import React from "react"
-import { View } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 
 const defaultOptions: ScreenProps[ "options" ] = {
@@ -12,34 +13,32 @@ const defaultOptions: ScreenProps[ "options" ] = {
 }
 export default function TabLayout() {
    const { them } = useMainContext()
+   const { user, loading } = useUserContext()
 
+   if ( !loading && !user?.id ) {
+      return <Redirect href={"/auth/login"} />
+   }
 
 
    return (
-      <SafeAreaView style={{ flex: 1 }} edges={[ "top" ]}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: Colors[ them ].surface }} edges={[ "top", "bottom" ]}>
+         <StatusBar style={them === 'dark' ? 'light' : 'dark'} />
          <Tabs
             screenOptions={{
                tabBarShowLabel: true,
                tabBarActiveTintColor: Colors[ them ].tint,
-               tabBarInactiveTintColor: Colors[ them ].tabIconDefault,
-
-               tabBarBackground: () => (
-                  <View
-                     style={{
-                        flex: 1,
-                        alignItems: "center",
-                        justifyContent: "center",
-                        borderColor: "none",
-                        backgroundColor: "#2c3e50",
-                     }}
-                  >
-                     <View style={{}} />
-                  </View>
-               ),
+               tabBarInactiveTintColor: Colors[ them ].icon,
+               tabBarStyle: {
+                  backgroundColor: Colors[ them ].surface,
+                  borderTopWidth: 0,
+                  height: 60,
+                  paddingTop: 8,
+                  paddingBottom: 8,
+               },
                tabBarLabelStyle: {
                   fontSize: 11,
+                  marginTop: 2,
                },
-
                tabBarLabelPosition: "below-icon",
                headerShown: false,
                tabBarButton: HapticTab,
@@ -53,6 +52,7 @@ export default function TabLayout() {
                      <Ionicons name="home" size={28} color={color} />
                   ),
                   ...defaultOptions,
+
                }}
             />
             <Tabs.Screen

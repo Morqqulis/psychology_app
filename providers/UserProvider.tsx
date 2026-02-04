@@ -1,9 +1,8 @@
-import { addCookie, removeCookie } from "@/functions/cookieActions"
+import { addCookie } from "@/functions/cookieActions"
 import { useProfile } from "@/services/auth/auth"
 import api from "@/shared/lib/axios"
 import { IUser } from "@/shared/lib/types/user"
 import AsyncStorage from "@react-native-async-storage/async-storage"
-import { useQueryClient } from "@tanstack/react-query"
 import { createContext, useContext, useEffect, useState } from "react"
 
 interface IUserContext {
@@ -23,7 +22,6 @@ export const useUserContext = () => useContext( UserContext )
 export const UserProvider = ( { children }: { children: React.ReactNode } ) => {
    const [ user, setUser ] = useState<IUser | undefined>( undefined )
    const { data, isLoading, error } = useProfile()
-   const queryClient = useQueryClient()
    useEffect( () => {
       if ( !isLoading && data?.token && data.user.id ) {
          const {
@@ -61,12 +59,10 @@ export const UserProvider = ( { children }: { children: React.ReactNode } ) => {
    }, [ data, isLoading ] )
 
    useEffect( () => {
-      if ( !error ) return
-      setUser( undefined )
-      removeCookie( "token" )
-      queryClient.removeQueries( { queryKey: [ "profile" ] } )
-      queryClient.removeQueries( { queryKey: [ "chat" ] } )
-   }, [ error, queryClient ] )
+      if ( error ) {
+         setUser( undefined )
+      }
+   }, [ error ] )
 
    useEffect( () => {
       const applyReferral = async () => {

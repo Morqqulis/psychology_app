@@ -10,10 +10,11 @@ import {
    useAudioRecorderState,
 } from "expo-audio"
 import * as Haptics from "expo-haptics"
-import React, { useMemo, useState } from "react"
+import React, { useEffect, useMemo, useRef, useState } from "react"
 import {
    ActivityIndicator,
-   KeyboardAvoidingView,
+   Animated,
+   Keyboard,
    Platform,
    StyleSheet,
    Text,
@@ -37,9 +38,36 @@ export function ChatInput( { onSendMessage, disabled }: ChatInputProps ) {
    const recorder = useAudioRecorder( RecordingPresets.HIGH_QUALITY )
    const recorderState = useAudioRecorderState( recorder )
    const transcribeVoice = useTranscribeVoice()
-   const inputRef = React.useRef<TextInput>( null )
+   const inputRef = useRef<TextInput>( null )
+   const translateY = useRef( new Animated.Value( 0 ) ).current
 
    const isDark = them === 'dark'
+
+   useEffect( () => {
+      const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow'
+      const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide'
+
+      const showSub = Keyboard.addListener( showEvent, ( e ) => {
+         Animated.timing( translateY, {
+            toValue: Platform.OS === 'ios' ? -e.endCoordinates.height + 90 : 0,
+            duration: e.duration || 250,
+            useNativeDriver: true,
+         } ).start()
+      } )
+
+      const hideSub = Keyboard.addListener( hideEvent, ( e ) => {
+         Animated.timing( translateY, {
+            toValue: 0,
+            duration: e.duration || 250,
+            useNativeDriver: true,
+         } ).start()
+      } )
+
+      return () => {
+         showSub.remove()
+         hideSub.remove()
+      }
+   }, [ translateY ] )
 
    const themedStyles = useMemo( () => ( {
       containerBorder: isDark ? Colors[ them ].surface : '#e5e7eb',
@@ -111,116 +139,112 @@ export function ChatInput( { onSendMessage, disabled }: ChatInputProps ) {
    }
 
    return (
-      <KeyboardAvoidingView
-         behavior={Platform.OS === "ios" ? "padding" : "padding"}
-         keyboardVerticalOffset={Platform.OS === "ios" ? 20 : 30}
+      <Animated.View
+         style={[
+            styles.container,
+            {
+               backgroundColor: Colors[ them ].background,
+               borderTopColor: themedStyles.containerBorder,
+               transform: [ { translateY } ],
+            }
+         ]}
       >
          <View
             style={[
-               styles.container,
+               styles.inputContainer,
                {
-                  backgroundColor: Colors[ them ].background,
-                  borderTopColor: themedStyles.containerBorder,
+                  backgroundColor: themedStyles.inputBg,
+                  borderColor: themedStyles.inputBorder,
                }
             ]}
          >
-            <View
-               style={[
-                  styles.inputContainer,
-                  {
-                     backgroundColor: themedStyles.inputBg,
-                     borderColor: themedStyles.inputBorder,
-                  }
-               ]}
-            >
-               {type === "record" ? (
-                  <VoiceRecording
-                     onCancel={cancelVoiceRecording}
-                     recorder={recorder}
-                     recorderState={recorderState}
-                  />
-               ) : isTranscribing ? (
-                  <View style={styles.transcribingContainer}>
-                     <ActivityIndicator size="small" color={Colors[ them ].primary} />
-                     <Text style={[ styles.transcribingText, { color: Colors[ them ].text } ]}>
-                        Səs mesajı oxunur...
-                     </Text>
-                  </View>
-               ) : (
-                  <View style={styles.inputWrapper}>
-                     <View style={styles.inputRow}>
-                        <TextInput
-                           ref={inputRef}
-                           style={[ styles.textInput, { color: themedStyles.inputText } ]}
-                           value={message}
-                           onChangeText={( text ) => {
-                              setMessage( text )
-                              if ( text.trim() ) {
-                                 setType( "text" )
-                              } else {
-                                 setType( "voice" )
-                              }
-                           }}
-                           onContentSizeChange={() => {
-                              if ( !message.trim() ) {
-                                 return
-                              }
-                           }}
-                           placeholder="Mesaj yazın..."
-                           placeholderTextColor={`${themedStyles.placeholderText}99`}
-                           multiline
-                           maxLength={500}
-                           editable={!disabled && !isTranscribing}
-                        />
-                        {message.length > 0 && !disabled && !isTranscribing && (
-                           <TouchableOpacity
-                              style={[
-                                 styles.clearButton,
-                                 {
-                                    backgroundColor: themedStyles.clearButtonBg,
-                                    borderColor: themedStyles.clearButtonBorder,
-                                 }
-                              ]}
-                              onPress={() => {
-                                 setMessage( "" )
-                                 setType( "voice" )
-                              }}
-                              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                           >
-                              <Ionicons name="close" size={16} color={Colors[ them ].icon} />
-                           </TouchableOpacity>
-                        )}
-                     </View>
-                     {message.length > 400 && (
-                        <Text
+            {type === "record" ? (
+               <VoiceRecording
+                  onCancel={cancelVoiceRecording}
+                  recorder={recorder}
+                  recorderState={recorderState}
+               />
+            ) : isTranscribing ? (
+               <View style={styles.transcribingContainer}>
+                  <ActivityIndicator size="small" color={Colors[ them ].primary} />
+                  <Text style={[ styles.transcribingText, { color: Colors[ them ].text } ]}>
+                     Səs mesajı oxunur...
+                  </Text>
+               </View>
+            ) : (
+               <View style={styles.inputWrapper}>
+                  <View style={styles.inputRow}>
+                     <TextInput
+                        ref={inputRef}
+                        style={[ styles.textInput, { color: themedStyles.inputText } ]}
+                        value={message}
+                        onChangeText={( text ) => {
+                           setMessage( text )
+                           if ( text.trim() ) {
+                              setType( "text" )
+                           } else {
+                              setType( "voice" )
+                           }
+                        }}
+                        onContentSizeChange={() => {
+                           if ( !message.trim() ) {
+                              return
+                           }
+                        }}
+                        placeholder="Mesaj yazın..."
+                        placeholderTextColor={`${themedStyles.placeholderText}99`}
+                        multiline
+                        maxLength={500}
+                        editable={!disabled && !isTranscribing}
+                     />
+                     {message.length > 0 && !disabled && !isTranscribing && (
+                        <TouchableOpacity
                            style={[
-                              styles.counterOverlay,
+                              styles.clearButton,
                               {
-                                 color: themedStyles.counterText,
-                                 backgroundColor: themedStyles.counterBg,
+                                 backgroundColor: themedStyles.clearButtonBg,
+                                 borderColor: themedStyles.clearButtonBorder,
                               }
                            ]}
+                           onPress={() => {
+                              setMessage( "" )
+                              setType( "voice" )
+                           }}
+                           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                         >
-                           {message.length}/500
-                        </Text>
+                           <Ionicons name="close" size={16} color={Colors[ them ].icon} />
+                        </TouchableOpacity>
                      )}
                   </View>
-               )}
-            </View>
-
-            <SendButton
-               type={type}
-               setType={setType}
-               handleSend={handleSend}
-               disabled={isTranscribing || disabled}
-               isRecording={type === "record"}
-               hasText={!!message.trim()}
-               onStopRecording={stopAndTranscribe}
-               onStartRecording={() => Haptics.impactAsync( Haptics.ImpactFeedbackStyle.Light ).catch( () => { } )}
-               isTranscribing={isTranscribing}
-            />
+                  {message.length > 400 && (
+                     <Text
+                        style={[
+                           styles.counterOverlay,
+                           {
+                              color: themedStyles.counterText,
+                              backgroundColor: themedStyles.counterBg,
+                           }
+                        ]}
+                     >
+                        {message.length}/500
+                     </Text>
+                  )}
+               </View>
+            )}
          </View>
-      </KeyboardAvoidingView>
+
+         <SendButton
+            type={type}
+            setType={setType}
+            handleSend={handleSend}
+            disabled={isTranscribing || disabled}
+            isRecording={type === "record"}
+            hasText={!!message.trim()}
+            onStopRecording={stopAndTranscribe}
+            onStartRecording={() => Haptics.impactAsync( Haptics.ImpactFeedbackStyle.Light ).catch( () => { } )}
+            isTranscribing={isTranscribing}
+         />
+      </Animated.View>
    )
 }
 

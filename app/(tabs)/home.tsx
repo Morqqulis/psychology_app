@@ -15,7 +15,7 @@ import { useChatHistory, useChatMeta, useSendMessage } from '@/services/chat/cha
 import { startEpointPayment } from '@/services/payments/epoint'
 import { useSettings } from '@/services/settings/settings'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { FlatList, KeyboardAvoidingView, Platform, RefreshControl, StyleSheet, View } from 'react-native'
+import { FlatList, Keyboard, RefreshControl, StyleSheet, View } from 'react-native'
 
 interface Message {
    id: string
@@ -44,7 +44,7 @@ export default function ChatScreen() {
 
    const profile = useProfile()
    const { data: settings } = useSettings()
-   const userId = profile.data?.user.id
+   const userId = profile.data?.user?.id
    const { data: chatHistory, isLoading: historyLoading, fetchNextPage, hasNextPage, isFetchingNextPage, refetch: refetchHistory } = useChatHistory( userId )
    const { data: chatMeta, refetch: refetchChatMeta } = useChatMeta( userId )
    const sendMessage = useSendMessage( userId )
@@ -58,6 +58,8 @@ export default function ChatScreen() {
    const freeLimit = settings?.freeMessageLimit ?? 5
    const maxFree = freeLimit + bonus
    const remaining = Math.max( 0, maxFree - used )
+
+   const isReady = !profile.isLoading && !!userId
 
    useEffect( () => {
       setLocalMessages( [] )
@@ -160,32 +162,14 @@ export default function ChatScreen() {
       }
    }, [ localMessages, historyLoading, isAtBottom ] )
 
-   const generateMsg = ( text: string, isVoice: boolean, isUser: boolean, audioUri?: string ): Message => {
-      const message: Message = {
-         id: `${Math.floor( Math.random() * 10000 ).toString()}${isUser ? "_user" : "_ai"}`,
-         type: isVoice ? "voice" : "text",
-         text,
-         isUser,
-         timestamp: new Date(),
-         audioUri,
-      }
-      setLocalMessages( ( prev ) => [ ...prev, message ] )
-      return message
-   }
-
    const handleSendMessage = async ( text: string ) => {
       if ( !text?.trim() ) return
 
       try {
          setIsTyping( true )
-
-         generateMsg( text, false, true )
-         const response = await sendMessage.mutateAsync( { message: text } )
+         await sendMessage.mutateAsync( { message: text } )
          setUsedLocal( prev => ( prev ?? serverUsed ) + 1 )
          refetchChatMeta().catch( () => { } )
-         if ( response.reply ) {
-            generateMsg( response.reply, false, false )
-         }
       } catch ( error: any ) {
          const errorMessage = error?.message || 'Mesajınızı əldə edə bilmədim. Zəhmət olmasa yenidən cəhd edin'
          showToast( {
@@ -193,7 +177,6 @@ export default function ChatScreen() {
             message: errorMessage,
             type: "error",
          } )
-         setLocalMessages( prev => prev.filter( msg => !msg.id.includes( '_user' ) ) )
       } finally {
          setIsTyping( false )
       }
@@ -251,22 +234,18 @@ export default function ChatScreen() {
       }
    }
 
-   if ( historyLoading ) {
+   if ( !isReady || historyLoading ) {
       return (
          <View style={[ styles.container, { backgroundColor: Colors[ them ].background } ]}>
             <ChatHeader />
             <ChatSkeleton />
-            <ChatInput onSendMessage={handleSendMessage} disabled={true} />
+            <ChatInput onSendMessage={() => { }} disabled={true} />
          </View>
       )
    }
 
    return (
-      <KeyboardAvoidingView
-         style={[ styles.container, { backgroundColor: Colors[ them ].background } ]}
-         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
-      >
+      <View style={[ styles.container, { backgroundColor: Colors[ them ].background } ]}>
          <ChatHeader />
 
          <View style={{ flex: 1 }}>
@@ -284,6 +263,7 @@ export default function ChatScreen() {
                ListFooterComponent={renderFooter}
                onScroll={handleScroll}
                scrollEventThrottle={16}
+               onTouchStart={() => Keyboard.dismiss()}
                onEndReached={() => {
                   if ( hasNextPage && !isFetchingNextPage ) {
                      fetchNextPage()
@@ -323,7 +303,7 @@ export default function ChatScreen() {
                paymentAmount={settings?.paymentAmount ?? 5}
             />
          )}
-      </KeyboardAvoidingView>
+      </View>
    )
 }
 

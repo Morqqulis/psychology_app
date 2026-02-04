@@ -7,7 +7,7 @@ import { IProfileLabels, menuItems } from '@/shared/static/menu'
 import { Ionicons } from '@expo/vector-icons'
 import { useQueryClient } from '@tanstack/react-query'
 import { router } from 'expo-router'
-import { Fragment, SetStateAction, useState } from 'react'
+import { Fragment, SetStateAction, useMemo, useState } from 'react'
 import {
    Image,
    Pressable,
@@ -31,9 +31,17 @@ export default function Menu( { setSelectedLabel, selectedLabel }: MenuProps ) {
    const { them } = useMainContext()
    const queryClient = useQueryClient()
 
+   const themedStyles = useMemo( () => ( {
+      menuBg: Colors[ them ].surface,
+      menuBorder: Colors[ them ].bubble,
+      optionBg: Colors[ them ].background,
+      optionText: Colors[ them ].text,
+      userName: Colors[ them ].text,
+      iconColor: Colors[ them ].primary,
+   } ), [ them ] )
+
    if ( !user ) return <></>
    const { name, surname } = user
-   const color = them === 'dark' ? Colors[ them ].text : Colors[ them ].blue
 
    const logOut = async () => {
       try {
@@ -51,14 +59,14 @@ export default function Menu( { setSelectedLabel, selectedLabel }: MenuProps ) {
             onPress={() => setVisible( !visible )}
             style={styles.menuButton}
          >
-            <Ionicons name="menu" size={24} color={color} />
+            <Ionicons name="menu" size={24} color={themedStyles.iconColor} />
          </TouchableOpacity>
          <SlideModal
             distance={85}
             direction="right"
             visible={visible}
             onClose={() => setVisible( false )}
-            viewStyle={styles.content}
+            viewStyle={[ styles.content, { backgroundColor: themedStyles.menuBg } ]}
             overlayStyle={{ alignItems: 'flex-end' }}
          >
             <View style={styles.profileSection}>
@@ -68,11 +76,25 @@ export default function Menu( { setSelectedLabel, selectedLabel }: MenuProps ) {
                   }}
                   style={styles.avatar}
                />
-               <View>
-                  <Text style={styles.userName}>
+               <View style={{ flex: 1 }}>
+                  <Text style={[ styles.userName, { color: themedStyles.userName } ]}>
                      {name} {surname}
                   </Text>
                </View>
+               <TouchableOpacity
+                  onPress={() => setVisible( false )}
+                  style={{
+                     width: 32,
+                     height: 32,
+                     borderRadius: 16,
+                     borderWidth: 1,
+                     borderColor: themedStyles.iconColor,
+                     alignItems: 'center',
+                     justifyContent: 'center',
+                  }}
+               >
+                  <Ionicons name="close" size={20} color={themedStyles.iconColor} />
+               </TouchableOpacity>
             </View>
             <View style={styles.menuList}>
                {labels.map( ( item ) => {
@@ -86,10 +108,22 @@ export default function Menu( { setSelectedLabel, selectedLabel }: MenuProps ) {
                         }}
                         style={[
                            styles.option,
-                           isActive && { backgroundColor: Colors[ them ].primary },
+                           {
+                              backgroundColor: isActive
+                                 ? Colors[ them ].primary
+                                 : themedStyles.optionBg
+                           },
                         ]}
                      >
-                        <Text style={[ styles.optionText, isActive && styles.activeText ]}>
+                        <Text
+                           style={[
+                              styles.optionText,
+                              {
+                                 color: isActive ? '#fff' : themedStyles.optionText,
+                                 fontWeight: isActive ? '600' : '400',
+                              }
+                           ]}
+                        >
                            {menuItems[ item ]}
                         </Text>
                      </Pressable>
@@ -116,7 +150,6 @@ const styles = StyleSheet.create( {
       borderTopLeftRadius: 20,
       borderBottomLeftRadius: 20,
       padding: 15,
-      backgroundColor: '#e9e9e9',
    },
    profileSection: {
       flexDirection: 'row',
@@ -128,12 +161,10 @@ const styles = StyleSheet.create( {
       width: 50,
       height: 50,
       borderRadius: 25,
-      backgroundColor: '#ccc',
    },
    userName: {
       fontSize: 16,
       fontWeight: '600',
-      color: '#222',
    },
    menuList: {
       flexGrow: 1,
@@ -143,21 +174,15 @@ const styles = StyleSheet.create( {
       paddingHorizontal: 14,
       borderRadius: 10,
       marginBottom: 10,
-      backgroundColor: '#f5f5f5',
    },
    optionText: {
       fontSize: 16,
-      color: '#333',
-   },
-   activeText: {
-      color: '#fff',
-      fontWeight: '600',
    },
    logoutBtn: {
       marginBottom: 30,
       paddingVertical: 12,
       borderRadius: 10,
-      backgroundColor: '#ff4d4d',
+      backgroundColor: '#ef4444',
       alignItems: 'center',
    },
    logoutText: {

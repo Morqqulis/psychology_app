@@ -77,8 +77,9 @@ export default function RegisterScreen() {
             <ScrollView
                contentContainerStyle={styles.scrollContent}
                showsVerticalScrollIndicator={false}
+               keyboardShouldPersistTaps="handled"
             >
-               <AuthHeader icon="person-add" title="Hesab yarat" />
+               <AuthHeader icon="person-add" title="Hesab yarat" subtitle="Yeni bir səyahətə başla" />
 
                <AuthFormContainer>
                   <InputControlled

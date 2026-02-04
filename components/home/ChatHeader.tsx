@@ -1,14 +1,20 @@
-import React from "react"
-import { View, Text, StyleSheet } from "react-native"
-import { useMainContext } from "@/providers/MainProvider"
 import { Colors } from "@/constants/theme"
+import { useMainContext } from "@/providers/MainProvider"
+import { Ionicons } from "@expo/vector-icons"
+import { LinearGradient } from "expo-linear-gradient"
+import React from "react"
+import { StyleSheet, Text, View } from "react-native"
 
 export function ChatHeader() {
    const { them } = useMainContext()
 
    return (
-      <View style={[ styles.container, { backgroundColor: Colors[ them ].surface } ]}>
+      <LinearGradient
+         colors={[ Colors[ them ].surface, Colors[ them ].background ]}
+         style={styles.container}
+      >
          <View style={styles.titleContainer}>
+            <Ionicons name="sparkles" size={20} color={Colors[ them ].primary} style={{ marginRight: 8 }} />
             <Text style={[ styles.title, { color: Colors[ them ].text } ]}>Nur Yolu</Text>
             <View
                style={[
@@ -17,35 +23,31 @@ export function ChatHeader() {
                ]}
             />
          </View>
-      </View>
+      </LinearGradient>
    )
 }
 
 const styles = StyleSheet.create( {
    container: {
-      borderBottomWidth: 1,
-      borderBottomColor: "rgba(0,0,0,0.1)",
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "center",
-      height: 50,
+      height: 55,
+      paddingTop: 4,
    },
    titleContainer: {
       flexDirection: "row",
       alignItems: "center",
-      // position: "relative",
    },
    title: {
-      fontSize: 20,
+      fontSize: 22,
       fontWeight: "700",
       marginRight: 8,
+      letterSpacing: 0.5,
    },
    onlineIndicator: {
       width: 8,
       height: 8,
       borderRadius: 4,
-      // position: "absolute",
-      // right: -5,
-      // top: 3,
    },
 } )
