@@ -14,11 +14,10 @@ import Toast from 'react-native-toast-message'
 
 const options: ExtendedStackNavigationOptions = {
    headerShown: false,
+   animation: "fade_from_bottom",
+   animationDuration: 1000,
 }
 
-const authOptions = {
-   ...options,
-}
 
 export default function RootLayout() {
 
@@ -31,8 +30,8 @@ export default function RootLayout() {
                      <Stack>
                         <Stack.Screen name='index' options={options} />
                         <Stack.Screen name='(tabs)' options={options} />
-                        <Stack.Screen name='auth/login' options={authOptions} />
-                        <Stack.Screen name='auth/register' options={authOptions} />
+                        <Stack.Screen name="auth/login" options={options} />
+                        <Stack.Screen name="auth/register" options={options} />
                      </Stack>
                   </MainProvider>
                </KeyboardProvider>
