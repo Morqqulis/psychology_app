@@ -14,7 +14,7 @@ import Toast from 'react-native-toast-message'
 
 const options: ExtendedStackNavigationOptions = {
    headerShown: false,
-   animation: "fade_from_bottom",
+   animation: "fade",
    animationDuration: 1000,
 }
 
