@@ -9,7 +9,6 @@ import { KeyboardProvider } from 'react-native-keyboard-controller'
 import 'react-native-reanimated'
 
 import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider'
-import { View } from 'react-native'
 import Toast from 'react-native-toast-message'
 
 const options: ExtendedStackNavigationOptions = {
@@ -32,6 +31,7 @@ export default function RootLayout() {
                         <Stack.Screen name='(tabs)' options={options} />
                         <Stack.Screen name="auth/login" options={options} />
                         <Stack.Screen name="auth/register" options={options} />
+                        <Stack.Screen name="specialists/[id]" options={options} />
                      </Stack>
                   </MainProvider>
                </KeyboardProvider>

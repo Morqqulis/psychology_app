@@ -2,12 +2,17 @@ import { api } from '@/shared/lib/axios'
 import { useQuery } from '@tanstack/react-query'
 
 export interface Payment {
-   id: number
+   id: number | string
    amount: number
    currency: string
    status: 'pending' | 'success' | 'failed'
    orderId: string
    createdAt: string
+   productType: 'subscription' | 'appointment'
+   specialist?: {
+      id: string | number
+      name: string
+   } | string | number
 }
 
 interface PayloadPaginatedResponse<T> {
@@ -25,8 +30,9 @@ interface PayloadPaginatedResponse<T> {
 
 export const paymentsApi = {
    getHistory: async ( userId: number | string, limit: number = 20, page: number = 1 ): Promise<PayloadPaginatedResponse<Payment>> => {
+      // depth=1 to expand specialist relationship
       const { data } = await api.get<PayloadPaginatedResponse<Payment>>(
-         `/payments?where[user][equals]=${userId}&sort=-createdAt&limit=${limit}&page=${page}`
+         `/payments?where[user][equals]=${userId}&sort=-createdAt&limit=${limit}&page=${page}&depth=1`
       )
       return data
    },

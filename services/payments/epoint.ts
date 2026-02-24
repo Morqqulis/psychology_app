@@ -1,11 +1,11 @@
-import * as Linking from "expo-linking"
-
 import api from "@/shared/lib/axios"
+import * as Linking from "expo-linking"
 
 interface CreatePaymentInput {
    amount: number
-   orderId: string
    description?: string
+   productType?: 'subscription' | 'appointment'
+   specialistId?: string | number
 }
 
 interface CreatePaymentResponse {
@@ -17,8 +17,9 @@ interface CreatePaymentResponse {
 export const startEpointPayment = async ( input: CreatePaymentInput ) => {
    const response = await api.post<CreatePaymentResponse>( "/payments/epoint/create", {
       amount: input.amount,
-      orderId: input.orderId,
       description: input.description,
+      productType: input.productType,
+      specialistId: input.specialistId,
    } )
 
    if ( !response.data.redirectUrl ) {
@@ -28,4 +29,3 @@ export const startEpointPayment = async ( input: CreatePaymentInput ) => {
    await Linking.openURL( response.data.redirectUrl )
    return response.data
 }
-

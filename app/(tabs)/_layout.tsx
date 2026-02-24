@@ -49,7 +49,18 @@ export default function TabLayout() {
                options={{
                   title: "Əsas səhifə",
                   tabBarIcon: ( { color } ) => (
-                     <Ionicons name="home" size={28} color={color} />
+                     <Ionicons name="chatbubbles-outline" size={28} color={color} />
+                  ),
+                  ...defaultOptions,
+                  animation: 'fade',
+               }}
+            />
+            <Tabs.Screen
+               name="specialists"
+               options={{
+                  title: "Mütəxəssislər",
+                  tabBarIcon: ( { color } ) => (
+                     <Ionicons name="people-outline" size={28} color={color} />
                   ),
                   ...defaultOptions,
                   animation: 'fade',
@@ -60,7 +71,7 @@ export default function TabLayout() {
                options={{
                   title: "Hesab",
                   tabBarIcon: ( { color } ) => (
-                     <Ionicons name="person" size={28} color={color} />
+                     <Ionicons name="person-outline" size={28} color={color} />
                   ),
                   ...defaultOptions,
                   animation: 'fade',
