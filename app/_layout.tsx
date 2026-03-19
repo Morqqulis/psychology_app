@@ -9,7 +9,11 @@ import { KeyboardProvider } from 'react-native-keyboard-controller'
 import 'react-native-reanimated'
 
 import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider'
+import { LogBox } from 'react-native'
 import Toast from 'react-native-toast-message'
+
+// Ignore harmless persistent cache warning from react-query
+LogBox.ignoreLogs( [ 'Encountered an error attempting to restore client cache' ] )
 
 const options: ExtendedStackNavigationOptions = {
    headerShown: false,

@@ -25,6 +25,7 @@ interface ButtonProps {
    style?: StyleProp<ViewStyle>
    onPress?: ( event: GestureResponderEvent ) => void
    haptic?: 'light' | 'medium' | 'heavy' | 'none'
+   textStyle?: StyleProp<ViewStyle> | any
 }
 
 export const Button = ( {
@@ -38,6 +39,7 @@ export const Button = ( {
    style,
    onPress,
    haptic = 'light',
+   textStyle
 }: ButtonProps ) => {
    const { them } = useMainContext()
    const scaleAnim = useRef( new Animated.Value( 1 ) ).current
@@ -102,7 +104,6 @@ export const Button = ( {
 
    const renderContent = () => (
       <>
-         {leftIcon && !loading && leftIcon}
          {loading ? (
             <ActivityIndicator color={variant === 'primary' ? '#fff' : color} size="small" />
          ) : (
@@ -111,6 +112,7 @@ export const Button = ( {
                   styles.buttonText,
                   { fontSize: getFontSize() },
                   variant !== 'primary' && { color },
+                  textStyle
                ]}
             >
                {title}
@@ -159,8 +161,11 @@ export const Button = ( {
          <Animated.View
             style={[
                styles.button,
-               styles.gradient,
                {
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  paddingHorizontal: 24,
                   height: getButtonHeight(),
                   transform: [ { scale: scaleAnim } ],
                   backgroundColor:
