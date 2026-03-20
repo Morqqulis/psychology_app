@@ -43,6 +43,15 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Fix hermesc
+        run: |
+          sudo apt-get install -y libstdc++6
+          HERMESC_PATH=$(find /home/runner -name "hermesc" -path "*/linux64-bin/*" 2>/dev/null | head -1)
+          if [ -n "$HERMESC_PATH" ]; then
+            chmod +x "$HERMESC_PATH"
+            echo "hermesc found at: $HERMESC_PATH"
+          fi
+
       - name: Build Android
         run: eas build --platform android --profile ${{ inputs.profile }} --local --non-interactive
         env:
