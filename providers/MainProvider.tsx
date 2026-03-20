@@ -1,6 +1,5 @@
 import { getCookie } from "@/functions/cookieActions"
 import { BadgeToast } from "@/hooks/showBadge"
-import AsyncStorage from "@react-native-async-storage/async-storage"
 import {
    DarkTheme,
    DefaultTheme,
@@ -31,18 +30,18 @@ export const MainProvider = ( { children }: { children: React.ReactNode } ) => {
    const colorScheme = useColorScheme()
    const isDark = colorScheme === "dark"
 
-   const getTheme = async () => {
-      const theme = await getCookie( "theme" )
-      if ( theme ) {
-         setThem( theme )
-      } else {
-         setThem( isDark ? "dark" : "light" )
-      }
-   }
-
    useEffect( () => {
+      const getTheme = async () => {
+         const theme = await getCookie( "theme" )
+         if ( theme ) {
+            setThem( theme as IThemNames )
+         } else {
+            setThem( isDark ? "dark" : "light" )
+         }
+      }
+
       getTheme()
-   }, [] )
+   }, [ isDark ] )
 
    useEffect( () => {
       const handleDeepLink = async ( url: string ) => {
@@ -52,13 +51,6 @@ export const MainProvider = ( { children }: { children: React.ReactNode } ) => {
          }
          if ( parsed.path === "pay/error" ) {
             Toast.show( { type: "error", text1: "Ödəniş baş tutmadı" } )
-         }
-         if ( parsed.path?.startsWith( "ref/" ) ) {
-            const code = parsed.path.replace( "ref/", "" )
-            if ( code ) {
-               await AsyncStorage.setItem( "referralCode", code )
-               Toast.show( { type: "info", text1: "Dəvət kodu saxlanıldı" } )
-            }
          }
       }
 
