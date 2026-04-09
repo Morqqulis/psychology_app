@@ -37,7 +37,7 @@ export const SLIDES: OnboardingSlideProps[] = [
    {
       id: '3',
       title: 'VIP\nÜstünlüklər',
-      description: 'VIP statusu ilə limitsiz mesajlaşma, daha dəрин emosional analizlər və mütəxəssislərlə prioritet əlaqə imkanı əldə edin.',
+      description: 'VIP üzvlər limitsiz mesajlaşma, daha dərin emosional analizlər və mütəxəssislərlə prioritet əlaqə imkanından istifadə edir.',
       image: require( '@/assets/images/logo.png' ),
       icon: 'star-outline'
    },

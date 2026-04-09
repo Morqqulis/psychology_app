@@ -1,9 +1,10 @@
-import api from "@/shared/lib/axios"
+import { api } from "@/shared/lib/axios"
 import * as Linking from "expo-linking"
 
 interface CreatePaymentInput {
    amount: number
    description?: string
+   orderId?: string
    productType?: 'subscription' | 'appointment'
    specialistId?: string | number
 }
@@ -17,6 +18,7 @@ interface CreatePaymentResponse {
 export const startEpointPayment = async ( input: CreatePaymentInput ) => {
    const response = await api.post<CreatePaymentResponse>( "/payments/epoint/create", {
       amount: input.amount,
+      orderId: input.orderId,
       description: input.description,
       productType: input.productType,
       specialistId: input.specialistId,

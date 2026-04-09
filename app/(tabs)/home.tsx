@@ -12,11 +12,9 @@ import { showToast } from '@/hooks/useToast'
 import { useMainContext } from '@/providers/MainProvider'
 import { useProfile } from '@/services/auth/auth'
 import { ChatMessage as ServiceChatMessage, useChatHistory, useChatMeta, useSendMessage } from '@/services/chat/chat'
-import { startEpointPayment } from '@/services/payments/epoint'
 import { useSettings } from '@/services/settings/settings'
-import { FlashList } from '@shopify/flash-list'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Keyboard, NativeScrollEvent, NativeSyntheticEvent, RefreshControl, StyleSheet, View } from 'react-native'
+import { Keyboard, NativeScrollEvent, NativeSyntheticEvent, RefreshControl, StyleSheet, View, FlatList } from 'react-native'
 
 interface Message {
    id: string
@@ -33,8 +31,7 @@ export default function ChatScreen() {
    const { them } = useMainContext()
    const [ isTyping, setIsTyping ] = useState( false )
    const [ isAtBottom, setIsAtBottom ] = useState( true )
-   const [ isPaying, setIsPaying ] = useState( false )
-   const flashListRef = useRef<React.ElementRef<typeof FlashList<Message>>>( null )
+   const flashListRef = useRef<FlatList<Message>>( null )
    const prevMessagesLengthRef = useRef( 0 )
 
    const profile = useProfile()
@@ -102,17 +99,14 @@ export default function ChatScreen() {
 
       if ( currentLength > prevLength && isAtBottom ) {
          setTimeout( () => {
-            flashListRef.current?.scrollToEnd( { animated: currentLength - prevLength === 1 } )
+            flashListRef.current?.scrollToOffset( { offset: 0, animated: currentLength - prevLength === 1 } )
          }, 50 )
       }
    }, [ messages.length, isAtBottom ] )
 
    useEffect( () => {
       if ( messages.length > 0 && !historyLoading ) {
-         setTimeout( () => {
-            flashListRef.current?.scrollToEnd( { animated: false } )
-            setIsAtBottom( true )
-         }, 300 )
+         setIsAtBottom( true )
       }
    }, [ messages.length, historyLoading ] )
 
@@ -139,9 +133,9 @@ export default function ChatScreen() {
 
    const renderMessage = useCallback(
       ( { item, index }: { item: Message; index: number } ) => (
-         <ChatMessage message={item} isNew={index === messages.length - 1} />
+         <ChatMessage message={item} isNew={index === 0} />
       ),
-      [ messages.length ]
+      []
    )
 
    // Temporarily remove getItemLayout to see if it's causing scrolling issues
@@ -152,10 +146,8 @@ export default function ChatScreen() {
    // }), [])
 
    const handleScroll = useCallback( ( event: NativeSyntheticEvent<NativeScrollEvent> ) => {
-      const { contentOffset, contentSize, layoutMeasurement } = event.nativeEvent
-      // Use a more generous threshold for "at bottom"
-      const distanceFromBottom = contentSize.height - contentOffset.y - layoutMeasurement.height
-      setIsAtBottom( distanceFromBottom < 100 ) // Within 100px of bottom
+      const { contentOffset } = event.nativeEvent
+      setIsAtBottom( contentOffset.y < 100 ) // Within 100px of bottom in inverted list
    }, [] )
 
    const renderFooter = () => {
@@ -163,30 +155,6 @@ export default function ChatScreen() {
          return <TypingIndicator />
       }
       return null
-   }
-
-   const handleUpgrade = async () => {
-      if ( isPaying ) return
-      try {
-         setIsPaying( true )
-         const orderId = `mobile-${Date.now()}`
-         const paymentAmount = settings?.paymentAmount ?? 5
-         await startEpointPayment( {
-            amount: paymentAmount,
-            orderId,
-            description: "AI limitsiz istifadə üçün ödəniş",
-         } )
-      } catch ( error ) {
-         console.error( error )
-
-         showToast( {
-            title: "Ödəniş",
-            message: "Ödəniş baş tutmadı, yenidən cəhd edin",
-            type: "error",
-         } )
-      } finally {
-         setIsPaying( false )
-      }
    }
 
    if ( !isReady || historyLoading ) {
@@ -204,13 +172,12 @@ export default function ChatScreen() {
          <ChatHeader />
 
          <View style={{ flex: 1 }}>
-            <FlashList
+            <FlatList
                ref={flashListRef}
                data={messages}
+               inverted={true}
                renderItem={renderMessage}
                keyExtractor={( item ) => item.id}
-               // @ts-ignore
-               estimatedItemSize={100}
                onEndReachedThreshold={0.2}
                ListFooterComponent={renderFooter}
                onScroll={handleScroll}
@@ -239,7 +206,7 @@ export default function ChatScreen() {
                visible={!isAtBottom}
                onPress={() => {
                   flashListRef.current?.scrollToOffset( {
-                     offset: 999999,
+                     offset: 0,
                      animated: true,
                   } )
                }}
@@ -249,11 +216,7 @@ export default function ChatScreen() {
          <ChatInput onSendMessage={handleSendMessage} disabled={isTyping || sendMessage.isPending || ( remaining === 0 && !isVip )} />
 
          {remaining === 0 && !isVip && (
-            <LimitMessage
-               onUpgrade={handleUpgrade}
-               isPaying={isPaying}
-               paymentAmount={settings?.paymentAmount ?? 5}
-            />
+            <LimitMessage />
          )}
       </View>
    )

@@ -1,4 +1,5 @@
 import { api, uploadApi } from '@/shared/lib/axios'
+import { isAxiosError } from 'axios'
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 
 export interface ChatMessage {
@@ -51,7 +52,7 @@ export const chatApi = {
          uri: normalizedUri,
          type: 'audio/m4a',
          name: 'voice.m4a',
-      } as any )
+      } as unknown as Blob )
       const { data } = await uploadApi.post<{ success: boolean, transcription: string }>( '/voice', formData )
       return data
    },
@@ -63,7 +64,7 @@ export const chatApi = {
          uri: normalizedUri,
          type: 'audio/m4a',
          name: 'voice.m4a',
-      } as any )
+      } as unknown as Blob )
       const { data } = await uploadApi.post<{ success: boolean, transcription: string }>( '/voice?transcribeOnly=true', formData )
       if ( !data.success || !data.transcription ) {
          throw new Error( 'Transcription failed' )
@@ -72,22 +73,25 @@ export const chatApi = {
    },
 }
 
-const getErrorMessage = ( error: any ): string => {
-   if ( error?.response?.data?.error ) {
-      return error.response.data.error
+const getErrorMessage = ( error: unknown ): string => {
+   if ( isAxiosError<{error?: string}>(error) ) {
+      if ( error.response?.data?.error ) {
+         return error.response.data.error
+      }
+      if ( error.response?.status === 401 ) {
+         return 'Giriş etməlisiniz.'
+      }
+      if ( error.response?.status === 400 ) {
+         return error.response.data.error || 'Yanlış məlumatlar daxil edilib'
+      }
+      if ( error.response?.status === 429 ) {
+         return error.response.data.error || 'Mesaj limitinə çatdınız. Maksimum 5 mesaj göndərə bilərsiniz.'
+      }
+      if ( error.response && error.response.status >= 500 ) {
+         return 'Server xətası baş verdi'
+      }
    }
-   if ( error?.response?.status === 401 ) {
-      return 'Giriş etməlisiniz.'
-   }
-   if ( error?.response?.status === 400 ) {
-      return error?.response?.data?.error || 'Yanlış məlumatlar daxil edilib'
-   }
-   if ( error?.response?.status === 429 ) {
-      return error?.response?.data?.error || 'Mesaj limitinə çatdınız. Maksimum 5 mesaj göndərə bilərsiniz.'
-   }
-   if ( error?.response?.status >= 500 ) {
-      return 'Server xətası baş verdi'
-   }
+   if ( error instanceof Error ) return error.message
    return 'Xəta baş verdi'
 }
 
@@ -156,15 +160,14 @@ export const useSendMessage = ( userId?: string | number ) => {
                }
 
                const newPages = [ ...old.pages ]
-               const lastPageIndex = newPages.length - 1
-               const lastPage = newPages[ lastPageIndex ]
+               const firstPage = newPages[ 0 ]
 
-               newPages[ lastPageIndex ] = {
-                  ...lastPage,
-                  messages: [ ...lastPage.messages, optimisticMessage ],
+               newPages[ 0 ] = {
+                  ...firstPage,
+                  messages: [ optimisticMessage, ...firstPage.messages ],
                }
 
-               return { ...old, pages: newPages }
+               return { ...old, pages: newPages } as unknown as { pages: { messages: ChatMessage[], chatId: string, hasMore: boolean, page: number, limit: number }[], pageParams: number[] }
             }
          )
 
@@ -186,12 +189,11 @@ export const useSendMessage = ( userId?: string | number ) => {
                ( old ) => {
                   if ( !old?.pages?.length ) return old
                   const newPages = [ ...old.pages ]
-                  const lastPageIndex = newPages.length - 1
-                  const lastPage = newPages[ lastPageIndex ]
+                  const firstPage = newPages[ 0 ]
 
-                  newPages[ lastPageIndex ] = {
-                     ...lastPage,
-                     messages: [ ...lastPage.messages, aiMessage ],
+                  newPages[ 0 ] = {
+                     ...firstPage,
+                     messages: [ aiMessage, ...firstPage.messages ],
                   }
                   return { ...old, pages: newPages }
                }

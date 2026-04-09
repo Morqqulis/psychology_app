@@ -8,7 +8,8 @@ import {
    Dimensions,
    FlatList,
    StyleSheet,
-   View
+   View,
+   ViewToken
 } from 'react-native'
 import * as Animatable from 'react-native-animatable'
 
@@ -30,9 +31,9 @@ export default function Index() {
 
    // State for Autoplay & Haptics
    const [ , setCurrentIndex ] = React.useState( 0 )
-   const autoplayTimer = useRef<any>( null )
+   const autoplayTimer = useRef<ReturnType<typeof setInterval> | null>( null )
 
-   const viewableItemsChanged = useRef( ( { viewableItems }: any ) => {
+   const viewableItemsChanged = useRef( ( { viewableItems }: { viewableItems: ViewToken[] } ) => {
       const newIndex = viewableItems[ 0 ]?.index ?? 0
       setCurrentIndex( ( prev ) => {
          if ( prev !== newIndex ) {

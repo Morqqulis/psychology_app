@@ -1,6 +1,7 @@
 import { api } from "@/shared/lib/axios";
 import type { RegisterResponse } from "@/services/auth/types";
 import { useMutation } from "@tanstack/react-query";
+import { isAxiosError } from "axios";
 import { EditProfileFormData } from "@/shared/schemas/auth";
 
 export const userApi = {
@@ -16,19 +17,22 @@ export const userApi = {
   },
 };
 
-const getErrorMessage = (error: any): string => {
-  if (error?.response?.data?.message) {
-    return error.response.data.message;
+const getErrorMessage = (error: unknown): string => {
+  if (isAxiosError<{message?: string}>(error)) {
+    if (error.response?.data?.message) {
+      return error.response.data.message;
+    }
+    if (error.response?.status === 400) {
+      return "Yanlış məlumatlar daxil edilib";
+    }
+    if (error.response?.status === 409) {
+      return "Bu email artıq istifadə olunur";
+    }
+    if (error.response && error.response.status >= 500) {
+      return "Server xətası baş verdi";
+    }
   }
-  if (error?.response?.status === 400) {
-    return "Yanlış məlumatlar daxil edilib";
-  }
-  if (error?.response?.status === 409) {
-    return "Bu email artıq istifadə olunur";
-  }
-  if (error?.response?.status >= 500) {
-    return "Server xətası baş verdi";
-  }
+  if (error instanceof Error) return error.message;
   return "Xəta baş verdi";
 };
 

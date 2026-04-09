@@ -3,9 +3,8 @@ import { Colors } from '@/constants/theme'
 import { useMainContext } from '@/providers/MainProvider'
 import { Specialist, useSpecialists } from '@/services/specialists/specialists'
 import { Ionicons } from '@expo/vector-icons'
-import { FlashList } from '@shopify/flash-list'
 import React from 'react'
-import { ActivityIndicator, RefreshControl, StyleSheet, Text, View } from 'react-native'
+import { ActivityIndicator, RefreshControl, StyleSheet, Text, View, FlatList } from 'react-native'
 
 export default function SpecialistsScreen() {
    const { them } = useMainContext()
@@ -25,12 +24,10 @@ export default function SpecialistsScreen() {
 
    return (
       <View style={[ styles.container, { backgroundColor: Colors[ them ].background } ]}>
-         <FlashList<Specialist>
+         <FlatList<Specialist>
             data={specialists}
             renderItem={( { item } ) => <SpecialistCard specialist={item} />}
             keyExtractor={( item ) => item.id.toString()}
-            // @ts-ignore
-            estimatedItemSize={510} // 480 card height + 30 margin
             numColumns={1}
             contentContainerStyle={styles.listContainer}
             ListHeaderComponent={

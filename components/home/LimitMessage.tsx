@@ -1,16 +1,9 @@
 import { Colors } from '@/constants/theme'
 import { useMainContext } from '@/providers/MainProvider'
 import { Ionicons } from '@expo/vector-icons'
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native'
-import { AnimatedButton } from '../ui/animated-button'
+import { StyleSheet, Text, View } from 'react-native'
 
-interface LimitMessageProps {
-   onUpgrade: () => void
-   isPaying: boolean
-   paymentAmount: number
-}
-
-export const LimitMessage = ( { onUpgrade, isPaying, paymentAmount }: LimitMessageProps ) => {
+export const LimitMessage = () => {
    const { them } = useMainContext()
 
    return (
@@ -22,27 +15,8 @@ export const LimitMessage = ( { onUpgrade, isPaying, paymentAmount }: LimitMessa
             Mesaj limitinə çatdınız
          </Text>
          <Text style={[ styles.description, { color: Colors[ them ].text } ]}>
-            Limitsiz söhbət üçün VIP statusu əldə edin və bütün imkanlardan istifadə edin.
+            VIP üzvlər limitsiz mesaj yaza bilər. Daha çox pulsuz mesaj üçün dostlarınızı dəvət edin.
          </Text>
-         <View style={styles.buttonWrapper}>
-            <AnimatedButton
-               style={{ ...styles.button, backgroundColor: Colors[ them ].primary }}
-               onPress={onUpgrade}
-               disabled={isPaying}
-               haptic="medium"
-            >
-               {isPaying ? (
-                  <ActivityIndicator color="#fff" size="small" />
-               ) : (
-                  <View style={styles.buttonContent}>
-                     <Ionicons name="diamond" size={18} color="#fff" />
-                     <Text style={styles.buttonText}>
-                        VIP ol - {paymentAmount} AZN
-                     </Text>
-                  </View>
-               )}
-            </AnimatedButton>
-         </View>
       </View>
    )
 }
@@ -67,28 +41,6 @@ const styles = StyleSheet.create( {
    description: {
       fontSize: 14,
       textAlign: 'center',
-      marginBottom: 16,
       lineHeight: 20,
-   },
-   buttonWrapper: {
-      width: '100%',
-   },
-   button: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
-      paddingVertical: 14,
-      paddingHorizontal: 24,
-      borderRadius: 12,
-   },
-   buttonContent: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: 8,
-   },
-   buttonText: {
-      color: '#fff',
-      fontSize: 16,
-      fontWeight: '700',
    },
 } )

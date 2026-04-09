@@ -56,7 +56,7 @@ export default function ProfileInfo() {
                } )
                setType( "view" )
             },
-            onError: ( err: any ) => {
+            onError: ( err: unknown ) => {
                console.log( err )
                showToast( {
                   title: "Xəta",

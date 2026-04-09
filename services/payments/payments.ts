@@ -30,9 +30,8 @@ interface PayloadPaginatedResponse<T> {
 
 export const paymentsApi = {
    getHistory: async ( userId: number | string, limit: number = 20, page: number = 1 ): Promise<PayloadPaginatedResponse<Payment>> => {
-      // depth=1 to expand specialist relationship
       const { data } = await api.get<PayloadPaginatedResponse<Payment>>(
-         `/payments?where[user][equals]=${userId}&sort=-createdAt&limit=${limit}&page=${page}&depth=1`
+         `/payments?where[user][equals]=${userId}&where[productType][equals]=appointment&sort=-createdAt&limit=${limit}&page=${page}&depth=1`
       )
       return data
    },
