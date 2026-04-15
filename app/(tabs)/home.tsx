@@ -150,7 +150,7 @@ export default function ChatScreen() {
       setIsAtBottom( contentOffset.y < 100 ) // Within 100px of bottom in inverted list
    }, [] )
 
-   const renderFooter = () => {
+   const renderTypingIndicator = () => {
       if ( isTyping ) {
          return <TypingIndicator />
       }
@@ -179,7 +179,7 @@ export default function ChatScreen() {
                renderItem={renderMessage}
                keyExtractor={( item ) => item.id}
                onEndReachedThreshold={0.2}
-               ListFooterComponent={renderFooter}
+               ListHeaderComponent={renderTypingIndicator}
                onScroll={handleScroll}
                scrollEventThrottle={16}
                onTouchStart={() => Keyboard.dismiss()}

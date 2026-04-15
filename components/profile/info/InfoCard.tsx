@@ -39,9 +39,12 @@ export default function InfoCard( {
    const remaining = Math.max( 0, maxFree - used )
    const isVip = user?.status === "vip"
 
+   console.log( freeLimit, 'freeLimit' )
+   console.log( bonus, 'bonus' )
+   console.log( maxFree, 'maxFree' )
+   console.log( used, 'used' )
+   console.log( remaining, 'remaining' )
 
-   console.log( serverUsed )
-   // console.log( serverUsed, 'serverUsed' )
 
    useEffect( () => {
       if ( typeof serverUsed === "number" ) {
