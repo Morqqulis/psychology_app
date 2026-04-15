@@ -39,6 +39,10 @@ export default function InfoCard( {
    const remaining = Math.max( 0, maxFree - used )
    const isVip = user?.status === "vip"
 
+
+   console.log( serverUsed )
+   // console.log( serverUsed, 'serverUsed' )
+
    useEffect( () => {
       if ( typeof serverUsed === "number" ) {
          setUsedLocal( serverUsed )

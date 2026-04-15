@@ -9,13 +9,15 @@ import { Image } from 'expo-image'
 import { LinearGradient } from 'expo-linear-gradient'
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router'
 import React, { useState } from 'react'
-import { ActivityIndicator, Dimensions, Linking, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, Dimensions, Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 const { width } = Dimensions.get( 'window' )
 
 export default function SpecialistDetailScreen() {
    const { id } = useLocalSearchParams()
    const router = useRouter()
+   const { bottom } = useSafeAreaInsets()
    const { them } = useMainContext()
    const isDark = them === 'dark'
    const { data: specialist, isLoading } = useSpecialist( id as string )
@@ -29,6 +31,7 @@ export default function SpecialistDetailScreen() {
       )
    }
 
+
    const handleWhatsApp = () => {
       if ( specialist.whatsapp ) {
          const url = `whatsapp://send?phone=${specialist.whatsapp}`
@@ -38,7 +41,7 @@ export default function SpecialistDetailScreen() {
             } else {
                showToast( {
                   title: "WhatsApp tapılmadı",
-                  message: "Zəhmət olmasa WhatsApp tətbiqinin quraшdırıldığından əmin olun",
+                  message: "Zəhmət olmasa WhatsApp tətbiqinin quraşdırıldığından əmin olun",
                   type: "error"
                } )
             }
@@ -159,7 +162,7 @@ export default function SpecialistDetailScreen() {
             </View>
          </ScrollView>
 
-         <View style={[ styles.footer, { backgroundColor: Colors[ them ].surface, borderTopColor: Colors[ them ].border } ]}>
+         <View style={[ styles.footer, { backgroundColor: Colors[ them ].surface, borderTopColor: Colors[ them ].border, paddingBottom: ( bottom === 0 ) ? 10 : bottom } ]}>
             {specialist.whatsapp ? (
                <TouchableOpacity style={[ styles.button, styles.whatsappButton ]} onPress={handleWhatsApp}>
                   <Ionicons name="logo-whatsapp" size={24} color="#FFF" />
@@ -303,8 +306,7 @@ const styles = StyleSheet.create( {
       bottom: 0,
       left: 0,
       right: 0,
-      padding: 20,
-      paddingBottom: Platform.OS === 'ios' ? 35 : 20,
+      padding: 10,
       borderTopWidth: 1,
    },
    button: {
