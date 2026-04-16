@@ -9,6 +9,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import React, { useState } from "react"
 import { useForm } from "react-hook-form"
 import { RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native"
+import { useQueryClient } from "@tanstack/react-query"
 import FormCard from "./FormCard"
 import InfoCard from "./InfoCard"
 
@@ -17,8 +18,10 @@ export default function ProfileInfo() {
    const { user, setUser } = useUserContext()
    const [ type, setType ] = useState<"view" | "edit">( "view" )
    const [ loading, setLoading ] = useState( false )
+   const [ isRefreshing, setIsRefreshing ] = useState( false )
    const updateProfile = useUpdateProfile()
    const { refetch, isRefetching } = useProfile()
+   const queryClient = useQueryClient()
 
    const defaultValues = user
       ? {
@@ -73,6 +76,26 @@ export default function ProfileInfo() {
       reset( defaultValues )
       setType( "view" )
    }
+
+   const handleRefresh = async () => {
+      setIsRefreshing( true )
+      try {
+         await Promise.allSettled( [
+            refetch(),
+            queryClient.invalidateQueries( {
+               queryKey: [ "chat", "meta", user?.id ],
+               refetchType: 'active',
+            } ),
+            queryClient.invalidateQueries( {
+               queryKey: [ "settings" ],
+               refetchType: 'active',
+            } ),
+         ] )
+      } finally {
+         setIsRefreshing( false )
+      }
+   }
+
    if ( !user ) {
       return (
          <View
@@ -91,8 +114,8 @@ export default function ProfileInfo() {
          showsVerticalScrollIndicator={false}
          refreshControl={
             <RefreshControl
-               refreshing={isRefetching}
-               onRefresh={refetch}
+               refreshing={isRefetching || isRefreshing}
+               onRefresh={handleRefresh}
                tintColor={Colors[ them ].primary}
                colors={[ Colors[ them ].primary ]}
             />

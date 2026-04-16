@@ -40,8 +40,8 @@ export const chatApi = {
       return data
    },
 
-   sendMessage: async ( message: string, type: 'text' | 'voice' = 'text' ): Promise<ChatResponse> => {
-      const { data } = await api.post<ChatResponse>( '/chat', { message, type } )
+   sendMessage: async ( message: string, type: 'text' | 'voice' = 'text', clientMessageId?: string ): Promise<ChatResponse> => {
+      const { data } = await api.post<ChatResponse>( '/chat', { message, type, clientMessageId } )
       return data
    },
 
@@ -125,10 +125,11 @@ export const useSendMessage = ( userId?: string | number ) => {
    const queryClient = useQueryClient()
 
    return useMutation( {
-      mutationFn: ( { message, type }: { message: string; type?: 'text' | 'voice' } ) =>
-         chatApi.sendMessage( message, type ),
+      retry: false,
+      mutationFn: ( { message, type, clientMessageId }: { message: string; type?: 'text' | 'voice'; clientMessageId?: string } ) =>
+         chatApi.sendMessage( message, type, clientMessageId ),
 
-      onMutate: async ( { message, type = 'text' } ) => {
+      onMutate: async ( { message, type = 'text', clientMessageId } ) => {
          await queryClient.cancelQueries( { queryKey: [ 'chat', 'history', userId ] } )
 
          const previousData = queryClient.getQueryData<{ pages: { messages: ChatMessage[] }[] }>(
@@ -136,7 +137,7 @@ export const useSendMessage = ( userId?: string | number ) => {
          )
 
          const optimisticMessage: ChatMessage = {
-            id: `optimistic-${Date.now()}`,
+            id: `optimistic-${clientMessageId ?? Date.now()}`,
             role: 'customer',
             message,
             type,

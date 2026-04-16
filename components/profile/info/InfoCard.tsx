@@ -5,7 +5,7 @@ import { useUserContext } from "@/providers/UserProvider"
 import { useChatMeta } from "@/services/chat/chat"
 import { useSettings } from "@/services/settings/settings"
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons"
-import React, { Fragment, useEffect, useState } from "react"
+import React, { Fragment } from "react"
 import { Share, StyleSheet, Text, TouchableOpacity, View } from "react-native"
 
 interface IInfoCardProps {
@@ -27,30 +27,18 @@ export default function InfoCard( {
    const { user } = useUserContext()
    const meta = useChatMeta( user?.id )
    const { data: settings } = useSettings()
-   const [ usedLocal, setUsedLocal ] = useState<number | undefined>( undefined )
 
    const color = Colors[ them ].text
    const invited = user?.invitedCount ?? 0
    const serverUsed = meta.data?.pages?.[ 0 ]?.messageCount ?? user?.totalMessagesUsed ?? 0
-   const used = usedLocal ?? serverUsed
+   const used = serverUsed
    const freeLimit = settings?.freeMessageLimit ?? 5
-   const bonus = Math.floor( invited / 5 ) * 5
+   const referralInviteStep = settings?.referralInviteStep && settings.referralInviteStep > 0 ? settings.referralInviteStep : 5
+   const referralMessageBonus = settings?.referralMessageBonus && settings.referralMessageBonus > 0 ? settings.referralMessageBonus : 5
+   const bonus = Math.floor( invited / referralInviteStep ) * referralMessageBonus
    const maxFree = freeLimit + bonus
    const remaining = Math.max( 0, maxFree - used )
    const isVip = user?.status === "vip"
-
-   console.log( freeLimit, 'freeLimit' )
-   console.log( bonus, 'bonus' )
-   console.log( maxFree, 'maxFree' )
-   console.log( used, 'used' )
-   console.log( remaining, 'remaining' )
-
-
-   useEffect( () => {
-      if ( typeof serverUsed === "number" ) {
-         setUsedLocal( serverUsed )
-      }
-   }, [ serverUsed ] )
 
    const handleInvite = async () => {
       if ( !user?.referralCode ) return

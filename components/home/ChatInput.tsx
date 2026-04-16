@@ -27,7 +27,7 @@ import SendButton from "./SendButton"
 import { VoiceRecording } from "./VoiceRecording"
 
 interface ChatInputProps {
-   onSendMessage: ( message: string ) => void
+   onSendMessage: ( message: string ) => Promise<void> | void
    disabled: boolean
 }
 
@@ -36,10 +36,12 @@ export function ChatInput( { onSendMessage, disabled }: ChatInputProps ) {
    const [ type, setType ] = useState<IAiInputType>( "voice" )
    const [ message, setMessage ] = useState( "" )
    const [ isTranscribing, setIsTranscribing ] = useState( false )
+   const [ isSending, setIsSending ] = useState( false )
    const recorder = useAudioRecorder( RecordingPresets.HIGH_QUALITY )
    const recorderState = useAudioRecorderState( recorder )
    const transcribeVoice = useTranscribeVoice()
    const inputRef = useRef<TextInput>( null )
+   const sendLockRef = useRef( false )
    const translateY = useRef( new Animated.Value( 0 ) ).current
 
    const isDark = them === 'dark'
@@ -85,11 +87,21 @@ export function ChatInput( { onSendMessage, disabled }: ChatInputProps ) {
    } ), [ them, isDark ] )
 
    const handleSend = async () => {
-      if ( !message.trim() || disabled || isTranscribing ) return
+      const textToSend = message.trim()
+      if ( !textToSend || disabled || isTranscribing || isSending || sendLockRef.current ) return
+
+      sendLockRef.current = true
+      setIsSending( true )
       Haptics.impactAsync( Haptics.ImpactFeedbackStyle.Light ).catch( () => { } )
-      onSendMessage( message.trim() )
       setMessage( "" )
       setType( "voice" )
+
+      try {
+         await Promise.resolve( onSendMessage( textToSend ) )
+      } finally {
+         sendLockRef.current = false
+         setIsSending( false )
+      }
    }
 
    const stopAndTranscribe = async () => {
@@ -197,9 +209,9 @@ export function ChatInput( { onSendMessage, disabled }: ChatInputProps ) {
                         placeholderTextColor={`${themedStyles.placeholderText}99`}
                         multiline
                         maxLength={500}
-                        editable={!disabled && !isTranscribing}
+                        editable={!disabled && !isTranscribing && !isSending}
                      />
-                     {message.length > 0 && !disabled && !isTranscribing && (
+                     {message.length > 0 && !disabled && !isTranscribing && !isSending && (
                         <TouchableOpacity
                            style={[
                               styles.clearButton,
@@ -239,7 +251,7 @@ export function ChatInput( { onSendMessage, disabled }: ChatInputProps ) {
             type={type}
             setType={setType}
             handleSend={handleSend}
-            disabled={isTranscribing || disabled}
+            disabled={isTranscribing || disabled || isSending}
             isRecording={type === "record"}
             hasText={!!message.trim()}
             onStopRecording={stopAndTranscribe}

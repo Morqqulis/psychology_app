@@ -5,6 +5,8 @@ export interface AppSettings {
    paymentAmount: number
    vipDuration: number
    freeMessageLimit: number
+   referralInviteStep: number
+   referralMessageBonus: number
 }
 
 export const settingsApi = {

@@ -25,6 +25,9 @@ interface Message {
    audioUri?: string
 }
 
+const createClientMessageId = () =>
+   `msg-${Date.now()}-${Math.random().toString( 36 ).slice( 2, 10 )}`
+
 
 
 export default function ChatScreen() {
@@ -33,6 +36,7 @@ export default function ChatScreen() {
    const [ isAtBottom, setIsAtBottom ] = useState( true )
    const flashListRef = useRef<FlatList<Message>>( null )
    const prevMessagesLengthRef = useRef( 0 )
+   const sendInFlightRef = useRef( false )
 
    const profile = useProfile()
    const { data: settings } = useSettings()
@@ -46,8 +50,10 @@ export default function ChatScreen() {
    const [ usedLocal, setUsedLocal ] = useState<number | undefined>( undefined )
    const serverUsed = chatMeta?.pages?.[ 0 ]?.messageCount ?? user?.totalMessagesUsed ?? 0
    const used = usedLocal ?? serverUsed
-   const bonus = Math.floor( invitedCount / 5 ) * 5
    const freeLimit = settings?.freeMessageLimit ?? 5
+   const referralInviteStep = settings?.referralInviteStep && settings.referralInviteStep > 0 ? settings.referralInviteStep : 5
+   const referralMessageBonus = settings?.referralMessageBonus && settings.referralMessageBonus > 0 ? settings.referralMessageBonus : 5
+   const bonus = Math.floor( invitedCount / referralInviteStep ) * referralMessageBonus
    const maxFree = freeLimit + bonus
    const remaining = Math.max( 0, maxFree - used )
 
@@ -111,16 +117,21 @@ export default function ChatScreen() {
    }, [ messages.length, historyLoading ] )
 
    const handleSendMessage = async ( text: string ) => {
-      if ( !text?.trim() ) return
+      if ( !text?.trim() || sendInFlightRef.current ) return
+      sendInFlightRef.current = true
 
       setIsTyping( true )
       setUsedLocal( prev => ( prev ?? serverUsed ) + 1 )
 
       try {
-         await sendMessage.mutateAsync( { message: text } )
+         await sendMessage.mutateAsync( {
+            message: text,
+            clientMessageId: createClientMessageId(),
+         } )
          refetchChatMeta().catch( () => { } )
       } catch {
-         setUsedLocal( prev => Math.max( 0, ( prev ?? serverUsed ) - 1 ) )
+         await Promise.allSettled( [ refetchHistory(), refetchChatMeta() ] )
+         setUsedLocal( undefined )
          showToast( {
             title: "Xəta",
             message: "Mesaj göndərilərkən xəta baş verdi. İnternet bağlantınızı yoxlayın",
@@ -128,6 +139,7 @@ export default function ChatScreen() {
          } )
       } finally {
          setIsTyping( false )
+         sendInFlightRef.current = false
       }
    }
 

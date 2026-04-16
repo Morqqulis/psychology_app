@@ -2,7 +2,7 @@ import { api } from "@/shared/lib/axios"
 import * as Linking from "expo-linking"
 
 interface CreatePaymentInput {
-   amount: number
+   amount?: number
    description?: string
    orderId?: string
    productType?: 'subscription' | 'appointment'

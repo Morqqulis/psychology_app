@@ -42,6 +42,9 @@ export default function TabLayout() {
                tabBarLabelPosition: "below-icon",
                headerShown: false,
                tabBarButton: HapticTab,
+               animation: 'none',
+               lazy: false,
+               freezeOnBlur: false,
             }}
          >
             <Tabs.Screen
@@ -52,7 +55,6 @@ export default function TabLayout() {
                      <Ionicons name="chatbubbles-outline" size={28} color={color} />
                   ),
                   ...defaultOptions,
-                  animation: 'fade',
                }}
             />
             <Tabs.Screen
@@ -63,7 +65,6 @@ export default function TabLayout() {
                      <Ionicons name="people-outline" size={28} color={color} />
                   ),
                   ...defaultOptions,
-                  animation: 'fade',
                }}
             />
             <Tabs.Screen
@@ -74,7 +75,6 @@ export default function TabLayout() {
                      <Ionicons name="person-outline" size={28} color={color} />
                   ),
                   ...defaultOptions,
-                  animation: 'fade',
 
                }}
             />

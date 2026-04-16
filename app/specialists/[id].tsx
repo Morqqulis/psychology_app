@@ -54,7 +54,6 @@ export default function SpecialistDetailScreen() {
       try {
          setIsPaying( true )
          await startEpointPayment( {
-            amount: specialist.price,
             description: `${specialist.name} - Məsləhət qəbulu üçün ödəniş`,
             productType: 'appointment',
             specialistId: specialist.id,
