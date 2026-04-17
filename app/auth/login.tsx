@@ -14,14 +14,17 @@ import { router } from 'expo-router'
 import React from 'react'
 import { useForm } from 'react-hook-form'
 import {
+   KeyboardAvoidingView,
    ScrollView,
    StyleSheet,
    View
 } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 export default function LoginScreen() {
    const { them } = useMainContext()
    const { setUser } = useUserContext()
+   const { bottom } = useSafeAreaInsets()
    const { control, handleSubmit } = useForm<LoginFormData>( {
       resolver: zodResolver( loginSchema ),
       defaultValues: {
@@ -60,48 +63,50 @@ export default function LoginScreen() {
 
    return (
       <View style={styles.container}>
-         <LinearGradient colors={gradients[ them ].splash} style={styles.gradient}>
-            <ScrollView
-               contentContainerStyle={styles.scrollContent}
-               showsVerticalScrollIndicator={false}
-               keyboardShouldPersistTaps="handled"
-            >
-               <AuthHeader icon="person-circle-outline" title="Xoş gəlmişsiniz" subtitle="Hesabınıza daxil olun" />
+         <LinearGradient colors={gradients[ them ].splash} style={[ styles.gradient, { paddingBottom: bottom } ]}>
+            <KeyboardAvoidingView behavior={'padding'} style={{ flex: 1 }}>
+               <ScrollView
+                  contentContainerStyle={styles.scrollContent}
+                  showsVerticalScrollIndicator={false}
+                  keyboardShouldPersistTaps="handled"
+               >
+                  <AuthHeader icon="person-circle-outline" title="Xoş gəlmişsiniz" subtitle="Hesabınıza daxil olun" />
 
-               <AuthFormContainer>
-                  <InputControlled
-                     control={control}
-                     name="email"
-                     label="Email"
-                     placeholder="Email ünvanınızı daxil edin"
-                     keyboardType="email-address"
-                     leftIcon="mail-outline"
-                     variant="primary"
-                  />
-                  <InputControlled
-                     control={control}
-                     name="password"
-                     label="Şifrə"
-                     placeholder="Şifrənizi daxil edin"
-                     autoComplete="current-password"
-                     leftIcon="lock-closed-outline"
-                     variant="primary"
-                  />
+                  <AuthFormContainer>
+                     <InputControlled
+                        control={control}
+                        name="email"
+                        label="Email"
+                        placeholder="Email ünvanınızı daxil edin"
+                        keyboardType="email-address"
+                        leftIcon="mail-outline"
+                        variant="primary"
+                     />
+                     <InputControlled
+                        control={control}
+                        name="password"
+                        label="Şifrə"
+                        placeholder="Şifrənizi daxil edin"
+                        autoComplete="current-password"
+                        leftIcon="lock-closed-outline"
+                        variant="primary"
+                     />
 
-                  <Button
-                     title="Daxil ol"
-                     onPress={handleSubmit( onSubmit )}
-                     loading={loginMutation.isPending}
-                     style={styles.loginButton}
-                  />
+                     <Button
+                        title="Daxil ol"
+                        onPress={handleSubmit( onSubmit )}
+                        loading={loginMutation.isPending}
+                        style={styles.loginButton}
+                     />
 
-                  <AuthFooter
-                     text="Hesabınız yoxdur?"
-                     linkText="Qeydiyyatdan keç"
-                     linkHref="/auth/register"
-                  />
-               </AuthFormContainer>
-            </ScrollView>
+                     <AuthFooter
+                        text="Hesabınız yoxdur?"
+                        linkText="Qeydiyyatdan keç"
+                        linkHref="/auth/register"
+                     />
+                  </AuthFormContainer>
+               </ScrollView>
+            </KeyboardAvoidingView>
          </LinearGradient>
       </View>
    )

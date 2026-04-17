@@ -3,7 +3,8 @@ import { useMainContext } from '@/providers/MainProvider'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useState } from 'react'
 import { Control, Controller, FieldValues, Path } from 'react-hook-form'
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import SlideModal from './SlideModal'
 
 interface GenderInputProps<T extends FieldValues> {
@@ -33,6 +34,7 @@ export default function GenderInput<T extends FieldValues>( {
 }: GenderInputProps<T> ) {
    const [ modalVisible, setModalVisible ] = useState( false )
    const { them } = useMainContext()
+   const insets = useSafeAreaInsets()
    const closeModal = () => setModalVisible( false )
 
    const { backgroundColor, color } =
@@ -84,7 +86,14 @@ export default function GenderInput<T extends FieldValues>( {
                      borderTopRightRadius: 20,
                   }}
                >
-                  <View style={styles.modalContext}>
+                  <View
+                     style={[
+                        styles.modalContext,
+                        {
+                           paddingBottom: Math.max( insets.bottom, Platform.OS === 'android' ? 16 : 12 ),
+                        },
+                     ]}
+                  >
                      <View style={{ marginBottom: 10 }}>
                         <Text style={{ fontSize: 18, color: '#1A1A1A' }}>
                            Cinsinizi seçin
@@ -128,7 +137,7 @@ const styles = StyleSheet.create( {
    modalContext: {
       width: '100%',
       padding: 20,
-      height: 170,
+      minHeight: 170,
       borderTopRightRadius: 20,
       borderTopLeftRadius: 20,
       backgroundColor: 'white',
