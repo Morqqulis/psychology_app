@@ -13,12 +13,8 @@ import { LinearGradient } from 'expo-linear-gradient'
 import { router } from 'expo-router'
 import React from 'react'
 import { useForm } from 'react-hook-form'
-import {
-   KeyboardAvoidingView,
-   ScrollView,
-   StyleSheet,
-   View
-} from 'react-native'
+import { StyleSheet, View } from 'react-native'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 export default function LoginScreen() {
@@ -64,12 +60,15 @@ export default function LoginScreen() {
    return (
       <View style={styles.container}>
          <LinearGradient colors={gradients[ them ].splash} style={[ styles.gradient, { paddingBottom: bottom } ]}>
-            <KeyboardAvoidingView behavior={'padding'} style={{ flex: 1 }}>
-               <ScrollView
-                  contentContainerStyle={styles.scrollContent}
-                  showsVerticalScrollIndicator={false}
-                  keyboardShouldPersistTaps="handled"
-               >
+            <KeyboardAwareScrollView
+               style={{ flex: 1 }}
+               contentContainerStyle={styles.scrollContent}
+               showsVerticalScrollIndicator={false}
+               keyboardShouldPersistTaps="handled"
+               keyboardDismissMode="interactive"
+               bottomOffset={24}
+               extraKeyboardSpace={0}
+            >
                   <AuthHeader icon="person-circle-outline" title="Xoş gəlmişsiniz" subtitle="Hesabınıza daxil olun" />
 
                   <AuthFormContainer>
@@ -105,8 +104,7 @@ export default function LoginScreen() {
                         linkHref="/auth/register"
                      />
                   </AuthFormContainer>
-               </ScrollView>
-            </KeyboardAvoidingView>
+            </KeyboardAwareScrollView>
          </LinearGradient>
       </View>
    )
@@ -121,6 +119,8 @@ const styles = StyleSheet.create( {
    },
    scrollContent: {
       flexGrow: 1,
+      width: '100%',
+      alignItems: 'stretch',
       padding: 20,
       paddingTop: 80,
       paddingBottom: 40,

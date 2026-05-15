@@ -8,13 +8,16 @@ import { EditProfileFormData, editProfileSchema } from "@/shared/schemas/auth"
 import { zodResolver } from "@hookform/resolvers/zod"
 import React, { useState } from "react"
 import { useForm } from "react-hook-form"
-import { RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native"
+import { RefreshControl, StyleSheet, Text, View } from "react-native"
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller"
+import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { useQueryClient } from "@tanstack/react-query"
 import FormCard from "./FormCard"
 import InfoCard from "./InfoCard"
 
 export default function ProfileInfo() {
    const { them } = useMainContext()
+   const { bottom: safeBottom } = useSafeAreaInsets()
    const { user, setUser } = useUserContext()
    const [ type, setType ] = useState<"view" | "edit">( "view" )
    const [ loading, setLoading ] = useState( false )
@@ -99,7 +102,7 @@ export default function ProfileInfo() {
    if ( !user ) {
       return (
          <View
-            style={[ styles.container, { backgroundColor: Colors[ them ].background } ]}
+            style={[ styles.scroll, { backgroundColor: Colors[ them ].background } ]}
          >
             <Text style={[ styles.emptyText, { color: Colors[ them ].text } ]}>
                İstifadəçi məlumatları tapılmadı
@@ -109,9 +112,14 @@ export default function ProfileInfo() {
    }
 
    return (
-      <ScrollView
-         style={[ styles.container, { backgroundColor: Colors[ them ].background } ]}
+      <KeyboardAwareScrollView
+         style={[ styles.scroll, { backgroundColor: Colors[ them ].background } ]}
+         contentContainerStyle={styles.content}
          showsVerticalScrollIndicator={false}
+         keyboardShouldPersistTaps="handled"
+         keyboardDismissMode="interactive"
+         bottomOffset={safeBottom + 32}
+         extraKeyboardSpace={24}
          refreshControl={
             <RefreshControl
                refreshing={isRefetching || isRefreshing}
@@ -129,17 +137,20 @@ export default function ProfileInfo() {
             loading={loading}
          />
          <FormCard type={type} control={control} />
-      </ScrollView>
+      </KeyboardAwareScrollView>
    )
 }
 
 const styles = StyleSheet.create( {
-   container: {
+   scroll: {
       flex: 1,
+   },
+   content: {
       paddingHorizontal: 20,
       paddingTop: 20,
+      paddingBottom: 24,
+      flexGrow: 1,
    },
-
    emptyText: {
       fontSize: 18,
       textAlign: "center",

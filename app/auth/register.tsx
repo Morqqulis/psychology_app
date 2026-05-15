@@ -114,6 +114,7 @@ export default function RegisterScreen() {
                      />
 
                      <GenderInput
+
                         control={control}
                         name="gender"
                         label="Cinsiyyət"
@@ -176,10 +177,12 @@ const styles = StyleSheet.create( {
    },
    scrollContent: {
       flexGrow: 1,
+      /** Without this, children with `width: '100%'` / stretch grids stay shrink‑wrapped (narrow gender row). */
+      width: '100%',
+      alignItems: 'stretch',
       paddingVertical: 50,
       paddingTop: 80,
       padding: 10,
-      overflow: 'scroll',
    },
    passwordHint: {
       fontSize: 12,
